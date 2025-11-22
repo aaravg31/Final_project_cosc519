@@ -2,7 +2,8 @@
     "name": "BlueCreature.Runtime",
     "rootNamespace": "",
     "references": [
-        "Unity.RenderPipelines.Universal.Runtime"
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -14,4 +15,3 @@
     "versionDefines": [],
     "noEngineReferences": false
 }
-
