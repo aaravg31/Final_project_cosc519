@@ -1,179 +1,168 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.UIElements.Experimental;
 
 public class TaskPhoneManager : MonoBehaviour
 {
     [SerializeField] private UIDocument phoneUI;
 
     private VisualElement _root;
-    private VisualElement _taskGrid;     // My Tasks grid (4 slots)
-    private VisualElement _newTaskGrid;  // New Tasks grid (2 slots)
-    private bool _isVisible;
+    private VisualElement _taskGrid;
+    private VisualElement _newTaskGrid;
     
-    // For swapping logic
-    private VisualElement _firstSelectedTask;
-    private VisualElement _firstSelectedSlot;
+    // For swapping
+    private VisualElement _firstSelected;
+    private Label _firstSelectedLabel;
 
     private void Start()
     {
         _root = phoneUI.rootVisualElement;
         _taskGrid = _root.Q<VisualElement>("TaskGrid");
         _newTaskGrid = _root.Q<VisualElement>("NewTaskGrid");
+        
+        // Hide phone initially
         _root.style.display = DisplayStyle.None;
-
-        // Register click handlers for existing tasks inside TaskGrid
-        foreach (var slot in _taskGrid.Children())
-        {
-            var taskBox = slot.Q<VisualElement>(className: "task-box");
-            if (taskBox != null)
-                RegisterClickHandler(taskBox, slot);
-        }
+        
+        // Register all existing task boxes
+        RegisterAllTaskBoxes();
     }
 
     public void TogglePhone()
     {
-        _isVisible = !_isVisible;
-        _root.style.display = _isVisible ? DisplayStyle.Flex : DisplayStyle.None;
-
-        if (_isVisible)
-            TryAddNewTask();
-        else
+        bool isVisible = _root.style.display == DisplayStyle.Flex;
+        
+        if (isVisible)
         {
-            ClearNewTasks();
+            // Hide phone
+            _root.style.display = DisplayStyle.None;
             ClearSelection();
         }
-    }
-
-    private void TryAddNewTask()
-    {
-        // Look for the first empty slot in NewTaskGrid
-        foreach (var slot in _newTaskGrid.Children())
+        else
         {
-            if (SlotIsEmpty(slot))
-            {
-                var newTask = CreateTaskBox("Task 5");
-                slot.Add(newTask);
-                RegisterClickHandler(newTask, slot);
-                return;
-            }
+            // Show phone and add new task
+            _root.style.display = DisplayStyle.Flex;
+            AddNewTask();
         }
-
-        Debug.Log("No empty slot in NewTaskGrid!");
     }
 
-    private void ClearNewTasks()
+    private void AddNewTask()
     {
-        foreach (var slot in _newTaskGrid.Children())
-            slot.Clear();
+        var newTaskSlot = _root.Q<VisualElement>("NewTaskSlot1");
+        
+        // Clear any existing content
+        newTaskSlot.Clear();
+        
+        // Add new label
+        var label = new Label("Task 5");
+        label.AddToClassList("task-label");
+        label.pickingMode = PickingMode.Ignore;
+        newTaskSlot.Add(label);
+        
+        Debug.Log("Task 5 added to NewTaskSlot1");
     }
 
-    private VisualElement CreateTaskBox(string label)
+    private void RegisterAllTaskBoxes()
     {
-        var box = new VisualElement();
-        box.AddToClassList("task-box");
-
-        var lbl = new Label(label);
-        lbl.style.unityTextAlign = TextAnchor.MiddleCenter;
-        lbl.pickingMode = PickingMode.Ignore; // Prevent label from blocking clicks
-        box.Add(lbl);
-
-        return box;
+        // Register task boxes in TaskGrid
+        RegisterTaskBox("TaskSlot1");
+        RegisterTaskBox("TaskSlot2");
+        RegisterTaskBox("TaskSlot3");
+        RegisterTaskBox("TaskSlot4");
+        
+        // Register task boxes in NewTaskGrid
+        RegisterTaskBox("NewTaskSlot1");
+        RegisterTaskBox("NewTaskSlot2");
     }
 
-    // Check if a slot contains a task box
-    private static bool SlotIsEmpty(VisualElement slot)
+    private void RegisterTaskBox(string slotName)
     {
-        return slot.Q<VisualElement>(className: "task-box") == null;
-    }
-
-    private void RegisterClickHandler(VisualElement task, VisualElement parentSlot)
-    {
-        task.RegisterCallback<ClickEvent>(evt =>
+        var taskBox = _root.Q<VisualElement>(slotName);
+        
+        if (taskBox == null)
         {
-            HandleTaskClick(task, parentSlot);
+            Debug.LogWarning($"Task box {slotName} not found!");
+            return;
+        }
+        
+        // Make it clickable
+        taskBox.pickingMode = PickingMode.Position;
+        taskBox.focusable = true;
+        
+        // Register click event
+        taskBox.RegisterCallback<ClickEvent>(evt =>
+        {
+            OnTaskBoxClicked(taskBox);
+            evt.StopPropagation();
+        });
+        
+        // Add hover effects
+        taskBox.RegisterCallback<MouseEnterEvent>(evt =>
+        {
+            if (taskBox != _firstSelected)
+            {
+                taskBox.AddToClassList("task-hover");
+            }
+        });
+        
+        taskBox.RegisterCallback<MouseLeaveEvent>(evt =>
+        {
+            taskBox.RemoveFromClassList("task-hover");
         });
     }
 
-    private void HandleTaskClick(VisualElement clickedTask, VisualElement clickedSlot)
+    private void OnTaskBoxClicked(VisualElement clickedBox)
     {
-        // First click - select this task
-        if (_firstSelectedTask == null)
+        var clickedLabel = clickedBox.Q<Label>();
+        
+        // If no label (empty slot), ignore
+        if (clickedLabel == null)
         {
-            _firstSelectedTask = clickedTask;
-            _firstSelectedSlot = clickedSlot;
-            
-            // Visual feedback - highlight selected task
-            _firstSelectedTask.AddToClassList("task-selected");
-            
-            Debug.Log($"First task selected: {GetTaskLabel(_firstSelectedTask)}");
+            Debug.Log("Clicked empty slot");
+            return;
         }
-        // Second click - swap if it's a different task
-        else if (_firstSelectedTask != clickedTask)
+        
+        Debug.Log($"Clicked: {clickedLabel.text}");
+        
+        // First selection
+        if (_firstSelected == null)
         {
-            Debug.Log($"Swapping {GetTaskLabel(_firstSelectedTask)} with {GetTaskLabel(clickedTask)}");
+            _firstSelected = clickedBox;
+            _firstSelectedLabel = clickedLabel;
             
-            // Check if one is from NewTaskGrid and one is from TaskGrid
-            bool firstIsNew = IsInNewTaskGrid(_firstSelectedSlot);
-            bool secondIsNew = IsInNewTaskGrid(clickedSlot);
+            // Highlight it
+            _firstSelected.AddToClassList("task-selected");
             
-            // Only allow swap if they're from different grids
-            if (firstIsNew != secondIsNew)
-            {
-                SwapTasks(_firstSelectedTask, _firstSelectedSlot, clickedTask, clickedSlot);
-            }
-            else
-            {
-                Debug.Log("Can only swap between New Tasks and My Tasks!");
-            }
+            Debug.Log($"Selected: {clickedLabel.text}");
+        }
+        // Second selection - swap
+        else if (_firstSelected != clickedBox)
+        {
+            Debug.Log($"Swapping {_firstSelectedLabel.text} with {clickedLabel.text}");
+            
+            // Swap the label texts
+            string tempText = _firstSelectedLabel.text;
+            _firstSelectedLabel.text = clickedLabel.text;
+            clickedLabel.text = tempText;
+            
+            Debug.Log("Swap complete!");
             
             // Clear selection
             ClearSelection();
         }
-        // Same task clicked again - deselect
+        // Same box clicked - deselect
         else
         {
-            Debug.Log("Same task clicked - deselecting");
+            Debug.Log("Deselected");
             ClearSelection();
         }
     }
 
-    private void SwapTasks(VisualElement task1, VisualElement slot1, VisualElement task2, VisualElement slot2)
-    {
-        // Remove both tasks from their slots
-        slot1.Remove(task1);
-        slot2.Remove(task2);
-        
-        // Add them to each other's slots
-        slot1.Add(task2);
-        slot2.Add(task1);
-        
-        // Re-register click handlers with new parent slots
-        RegisterClickHandler(task1, slot2);
-        RegisterClickHandler(task2, slot1);
-        
-        Debug.Log("Swap completed!");
-    }
-
     private void ClearSelection()
     {
-        if (_firstSelectedTask != null)
+        if (_firstSelected != null)
         {
-            _firstSelectedTask.RemoveFromClassList("task-selected");
-            _firstSelectedTask = null;
-            _firstSelectedSlot = null;
+            _firstSelected.RemoveFromClassList("task-selected");
+            _firstSelected = null;
+            _firstSelectedLabel = null;
         }
-    }
-
-    private bool IsInNewTaskGrid(VisualElement slot)
-    {
-        // Check if the slot is a child of NewTaskGrid
-        return _newTaskGrid.Contains(slot);
-    }
-
-    private string GetTaskLabel(VisualElement task)
-    {
-        var label = task.Q<Label>();
-        return label != null ? label.text : "Unknown";
     }
 }

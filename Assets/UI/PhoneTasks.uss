@@ -61,6 +61,13 @@
     transition-duration: 0.1s;
 }
 
+.task-box.task-selected {
+    background-color: rgba(100, 180, 255, 0.9);
+    border-color: rgba(150, 220, 255, 1);
+    border-width: 4px;
+    scale: 1.08 1.08;
+}
+
 .task-label {
     color: rgba(200,230,255,0.9);
     font-size: 14px;
