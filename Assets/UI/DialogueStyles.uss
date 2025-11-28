@@ -1,0 +1,68 @@
+.dialogue-root {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 16px;
+    margin-right: 12px;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.speech-row {
+    width: 100%;
+    display: flex;
+}
+
+.speech-row--npc {
+    justify-content: flex-start;
+}
+
+.speech-row--choices {
+    justify-content: center;
+    /* side-by-side by default because display:flex + row */
+    margin-right: 12px;
+}
+
+.speech-bubble {
+    max-width: 40%; /* ensure both choices fit side-by-side */
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 18px;
+    -unity-text-align: upper-left;
+    background-color: rgba(20, 20, 20, 0.90);
+    color: white;
+    justify-content: center;
+    align-items: center;
+    /* For smoother transformations */
+    transition-property: transform, background-color, color, border-color;
+    transition-duration: 0.12s;
+}
+
+.speech-bubble--npc {
+    background-color: #1e293b;
+    border-width: 1px;
+    border-color: #475569;
+    border-radius: 14px;
+    max-width: 70%;
+}
+
+.speech-bubble--choice {
+    background-color: #020617;
+    border-width: 2px;
+    border-color: #38bdf8;
+}
+
+/* Hover effect: scale up slightly */
+.speech-bubble--choice:hover {
+    scale: 1.05; /* 5% larger */
+    background-color: #0f172a;
+    border-color: #7dd3fc;
+}
+
+/* Optional: when pressed / active */
+.speech-bubble--choice:active {
+    scale: 0.975;
+}
