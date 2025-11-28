@@ -1,11 +1,15 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/DialogueStyles.uss?fileID=7433441132597879392&amp;guid=5889ab0af4cc148d2ba82462f799b795&amp;type=3#DialogueStyles" />
-    <ui:VisualElement name="DialogRoot" class="dialogue-root" style="flex-grow: 1;" />
-    <ui:VisualElement name="NpcRow" class="speech-row speech-row--npc" style="flex-grow: 1;">
-        <ui:Label text="NPC: " name="NpcBubble" class="speech-bubble speech-bubble--npc" />
+    <ui:VisualElement name="choice-container" class="container" style="flex-grow: 1;" />
+    <ui:VisualElement name="npc-bubble" class="speech-bubble" style="flex-grow: 1; height: auto;">
+        <ui:Label text="NPC: " name="npc-text" class="bubble-text" />
     </ui:VisualElement>
-    <ui:VisualElement name="ChoicesRow" class="speech-row speech-row--choice" style="flex-grow: 1;">
-        <ui:Label text="Choice A" name="ChoiceAButton" class="speech-bubble speech-bubble--choice" />
-        <ui:Label text="Choice B" name="ChoiceBButton" parse-escape-sequences="false" class="speech-bubble speech-bubble--choice" />
+    <ui:VisualElement name="choices-container" class="speech-row speech-row--choice choices-row" style="flex-grow: 1;">
+        <ui:Button text="]" name="choice-a" class="choice-button">
+            <ui:Label text="Choice A" name="choice-a-text" class="choice-text" style="height: 80px;" />
+        </ui:Button>
+        <ui:Button text="]" name="choice-b" class="choice-button">
+            <ui:Label text="Choice B" name="choice-b-text" class="choice-text" style="height: 80px;" />
+        </ui:Button>
     </ui:VisualElement>
 </ui:UXML>

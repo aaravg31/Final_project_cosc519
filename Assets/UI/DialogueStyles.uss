@@ -1,68 +1,82 @@
-.dialogue-root {
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 16px;
-    margin-right: 12px;
-
+/* Main Container */
+.container {
     width: 100%;
     height: 100%;
-
-    background-color: rgba(0, 0, 0, 0.25);
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 80px;
 }
 
-.speech-row {
-    width: 100%;
-    display: flex;
-}
-
-.speech-row--npc {
-    justify-content: flex-start;
-}
-
-.speech-row--choices {
-    justify-content: center;
-    /* side-by-side by default because display:flex + row */
-    margin-right: 12px;
-}
-
+/* NPC Speech Bubble */
 .speech-bubble {
-    max-width: 40%; /* ensure both choices fit side-by-side */
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 18px;
-    -unity-text-align: upper-left;
-    background-color: rgba(20, 20, 20, 0.90);
-    color: white;
+    background-color: rgba(50, 50, 60, 0.95);
+    border-color: rgba(150, 150, 170, 0.6);
+    border-width: 3px;
+    border-radius: 20px;
+    padding: 25px 35px;
+    margin-bottom: 20px;
+    max-width: 600px;
+    min-height: 80px;
+    align-items: center;
+    justify-content: center;
+}
+
+.bubble-text {
+    color: rgb(255, 255, 255);
+    font-size: 24px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    flex-wrap: wrap;
+}
+
+/* Choices Row Container */
+.choices-row {
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    /* For smoother transformations */
-    transition-property: transform, background-color, color, border-color;
-    transition-duration: 0.12s;
 }
 
-.speech-bubble--npc {
-    background-color: #1e293b;
-    border-width: 1px;
-    border-color: #475569;
-    border-radius: 14px;
-    max-width: 70%;
+/* Choice Buttons */
+.choice-button {
+    background-color: rgba(30, 50, 80, 0.95);
+    border-color: rgba(70, 130, 220, 0.8);
+    border-width: 3px;
+    border-radius: 15px;
+    padding: 20px 40px;
+    margin: 0 15px;
+    min-width: 250px;
+    min-height: 80px;
+    transition-property: scale, background-color, border-color;
+    transition-duration: 0.2s, 0.2s, 0.2s;
+    scale: 1 1;
 }
 
-.speech-bubble--choice {
-    background-color: #020617;
-    border-width: 2px;
-    border-color: #38bdf8;
+.choice-button:hover {
+    scale: 1.1 1.1;
+    background-color: rgba(50, 90, 150, 0.98);
+    border-color: rgba(100, 180, 255, 1);
 }
 
-/* Hover effect: scale up slightly */
-.speech-bubble--choice:hover {
-    scale: 1.05; /* 5% larger */
-    background-color: #0f172a;
-    border-color: #7dd3fc;
+.choice-button:active {
+    background-color: rgba(60, 110, 180, 1);
+    border-color: rgba(120, 200, 255, 1);
 }
 
-/* Optional: when pressed / active */
-.speech-bubble--choice:active {
-    scale: 0.975;
+.choice-text {
+    color: rgb(255, 255, 255);
+    font-size: 22px;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* Highlighted state */
+.choice-highlighted {
+    background-color: rgba(50, 90, 150, 0.98);
+    border-color: rgba(100, 180, 255, 1);
+    scale: 1.1 1.1;
+}
+
+/* Hidden state */
+.choice-hidden {
+    display: none;
 }
