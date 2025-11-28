@@ -2,6 +2,7 @@
     <Style src="project://database/Assets/UI/PhoneTasks.uss?fileID=7433441132597879392&amp;guid=7a874a7de6564466eb2a44ce8e6824c8&amp;type=3#PhoneTasks" />
     <ui:VisualElement name="phone-root" class="phone-root" style="flex-grow: 1;">
         <ui:VisualElement name="header" class="header" style="flex-grow: 1;">
+            <ui:Button text="X" name="exit-button" class="exit-button" />
             <ui:Label text="My Tasks" name="header-title" class="header-title" />
         </ui:VisualElement>
         <ui:VisualElement name="TaskGrid" class="task-grid" style="flex-grow: 1;">

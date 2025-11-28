@@ -106,3 +106,27 @@
     height: 70%;
 }
 
+/* Exit Button */
+.exit-button {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(200, 50, 50, 0.8);
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: rgba(255, 100, 100, 0.6);
+    color: rgb(255, 255, 255);
+    font-size: 24px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    cursor: link;
+}
+
+.exit-button:hover {
+    background-color: rgba(220, 70, 70, 0.9);
+    border-color: rgba(255, 120, 120, 0.8);
+    scale: 1.1 1.1;
+}
+

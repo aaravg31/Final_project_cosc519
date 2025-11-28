@@ -24,6 +24,18 @@ public class TaskPhoneManager : MonoBehaviour
         
         // Register all existing task boxes
         RegisterAllTaskBoxes();
+        
+        // Register exit button
+        var exitButton = _root.Q<Button>("exit-button");
+        if (exitButton != null)
+        {
+            exitButton.clicked += ClosePhone;
+            Debug.Log("Exit button registered");
+        }
+        else
+        {
+            Debug.LogWarning("Exit button not found!");
+        }
     }
 
     public void TogglePhone()
@@ -32,9 +44,7 @@ public class TaskPhoneManager : MonoBehaviour
         
         if (isVisible)
         {
-            // Hide phone
-            _root.style.display = DisplayStyle.None;
-            ClearSelection();
+            ClosePhone();
         }
         else
         {
@@ -42,6 +52,25 @@ public class TaskPhoneManager : MonoBehaviour
             _root.style.display = DisplayStyle.Flex;
             AddNewTask();
         }
+    }
+    
+    private void ClosePhone()
+    {
+        // Hide phone
+        _root.style.display = DisplayStyle.None;
+    
+        // Clear selection
+        ClearSelection();
+    
+        // Clear new task (return Task 5)
+        var newTaskSlot = _root.Q<VisualElement>("NewTaskSlot1");
+        if (newTaskSlot != null)
+        {
+            newTaskSlot.Clear();
+            Debug.Log("Cleared NewTaskSlot1");
+        }
+    
+        Debug.Log("Phone closed");
     }
 
     private void AddNewTask()
@@ -55,6 +84,7 @@ public class TaskPhoneManager : MonoBehaviour
         var label = new Label("Task 5");
         label.AddToClassList("task-label");
         label.pickingMode = PickingMode.Ignore;
+        label.style.unityTextAlign = TextAnchor.MiddleCenter;
         newTaskSlot.Add(label);
         
         Debug.Log("Task 5 added to NewTaskSlot1");
