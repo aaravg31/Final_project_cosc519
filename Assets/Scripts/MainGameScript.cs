@@ -6,6 +6,7 @@ public class MainGameScript : MonoBehaviour
     [SerializeField] private TaskPhoneManager phoneManager;
     [SerializeField] private GameObject notificationUI;
     [SerializeField] private NotificationClick notificationScript;
+    [SerializeField] private ChoiceUIController dialogueUI;
 
     private void Start()
     {
@@ -29,11 +30,21 @@ public class MainGameScript : MonoBehaviour
             Debug.LogError("Notification UI not assigned!");
         }
 
+        // Make sure dialogue UI is hidden
+        if (dialogueUI != null)
+        {
+            dialogueUI.HideAll();
+        }
+        else
+        {
+            Debug.LogError("ChoiceUIController not assigned!");
+        }
+
         // Make sure phone is hidden (it should be from TaskPhoneManager.Start())
         Debug.Log("Game started - UIs hidden");
 
-        // Start the timer for first notification
-        StartCoroutine(ShowFirstNotification());
+        // Start the dialogue sequence after 10 seconds
+        StartCoroutine(StartDialogueSequence());
     }
 
     private void OnDestroy()
@@ -45,13 +56,86 @@ public class MainGameScript : MonoBehaviour
         }
     }
 
-    private IEnumerator ShowFirstNotification()
+    private IEnumerator StartDialogueSequence()
     {
         // Wait 10 seconds
         yield return new WaitForSeconds(10f);
 
-        // Show notification with "Homework" task
-        ShowNewTaskNotification("Homework");
+        // Show first dialogue
+        Debug.Log("Starting dialogue sequence");
+        yield return StartCoroutine(ShowFirstDialogue());
+    }
+
+    private IEnumerator ShowFirstDialogue()
+    {
+        string selectedChoice = null;
+        bool choiceMade = false;
+
+        // Show first dialogue
+        dialogueUI.ShowDialogue(
+            "NPC: Hey! What do you want to do today?",
+            "Go to the library",
+            "Play video games",
+            (choice) =>
+            {
+                selectedChoice = choice;
+                choiceMade = true;
+                Debug.Log($"First choice made: {choice}");
+            }
+        );
+
+        // Wait for user to make a choice
+        yield return new WaitUntil(() => choiceMade);
+
+        // Wait longer for first dialogue to fully complete (2s selected stays + 0.3s fade + buffer)
+        yield return new WaitForSeconds(3f);
+
+        // Show second dialogue based on first choice
+        yield return StartCoroutine(ShowSecondDialogue(selectedChoice));
+    }
+
+    private IEnumerator ShowSecondDialogue(string firstChoice)
+    {
+        string selectedChoice = null;
+        bool choiceMade = false;
+
+        if (firstChoice == "Go to the library")
+        {
+            dialogueUI.ShowDialogue(
+                "NPC: Great! What will you study?",
+                "Math homework",
+                "Read a novel",
+                (choice) =>
+                {
+                    selectedChoice = choice;
+                    choiceMade = true;
+                    Debug.Log($"Second choice made: {choice}");
+                }
+            );
+        }
+        else if (firstChoice == "Play video games")
+        {
+            dialogueUI.ShowDialogue(
+                "NPC: Nice! What game?",
+                "Action game",
+                "Puzzle game",
+                (choice) =>
+                {
+                    selectedChoice = choice;
+                    choiceMade = true;
+                    Debug.Log($"Second choice made: {choice}");
+                }
+            );
+        }
+
+        // Wait for user to make a choice
+        yield return new WaitUntil(() => choiceMade);
+
+        // Wait for second dialogue to fully complete
+        yield return new WaitForSeconds(3f);
+
+        // Show notification with the final selected choice
+        ShowNewTaskNotification(selectedChoice);
     }
 
     // Call this when you want to show a new task notification

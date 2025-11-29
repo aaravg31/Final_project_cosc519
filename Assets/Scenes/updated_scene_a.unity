@@ -976,6 +976,7 @@ MonoBehaviour:
   phoneManager: {fileID: 139568229}
   notificationUI: {fileID: 1259354551}
   notificationScript: {fileID: 207548133}
+  dialogueUI: {fileID: 893039536}
 --- !u!4 &629427313
 Transform:
   m_ObjectHideFlags: 0
@@ -1211,6 +1212,7 @@ GameObject:
   - component: {fileID: 893039535}
   - component: {fileID: 893039534}
   - component: {fileID: 893039533}
+  - component: {fileID: 893039536}
   m_Layer: 5
   m_Name: DialgoueUI
   m_TagString: Untagged
@@ -1371,6 +1373,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 19.200005, y: 10.799999, z: 0.00000094416623}
   m_Center: {x: 0.0000004768374, y: 0, z: 0}
+--- !u!114 &893039536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893039530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8819c5f4b73947469d3b034bc956d2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChoiceUIController
+  uiDocument: {fileID: 893039531}
 --- !u!43 &978317260
 Mesh:
   m_ObjectHideFlags: 0
