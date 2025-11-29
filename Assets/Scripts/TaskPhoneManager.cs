@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System;
 
 public class TaskPhoneManager : MonoBehaviour
 {
@@ -12,6 +13,13 @@ public class TaskPhoneManager : MonoBehaviour
     // For swapping
     private VisualElement _firstSelected;
     private Label _firstSelectedLabel;
+    
+    // Track the new task and what was swapped
+    private string _currentNewTask;
+    private string _swappedOutTask;
+    
+    // Callback for when phone closes
+    public event Action<string, string> OnPhoneClosed; // (newTask, swappedOutTask)
 
     private void Start()
     {
@@ -38,6 +46,18 @@ public class TaskPhoneManager : MonoBehaviour
         }
     }
 
+    // Call this to show phone with a specific new task
+    public void ShowPhoneWithTask(string taskText)
+    {
+        _currentNewTask = taskText;
+        _swappedOutTask = null; // Reset
+        
+        _root.style.display = DisplayStyle.Flex;
+        AddNewTask(taskText);
+        
+        Debug.Log($"Phone opened with task: {taskText}");
+    }
+
     public void TogglePhone()
     {
         bool isVisible = _root.style.display == DisplayStyle.Flex;
@@ -48,32 +68,37 @@ public class TaskPhoneManager : MonoBehaviour
         }
         else
         {
-            // Show phone and add new task
-            _root.style.display = DisplayStyle.Flex;
-            AddNewTask();
+            // Show phone with default task
+            ShowPhoneWithTask("Task 5");
         }
     }
-    
+
     private void ClosePhone()
     {
         // Hide phone
         _root.style.display = DisplayStyle.None;
-    
+        
         // Clear selection
         ClearSelection();
-    
-        // Clear new task (return Task 5)
+        
+        // Check what's in NewTaskSlot1 before clearing
         var newTaskSlot = _root.Q<VisualElement>("NewTaskSlot1");
         if (newTaskSlot != null)
         {
+            var label = newTaskSlot.Q<Label>();
+            string remainingTask = label != null ? label.text : null;
+            
             newTaskSlot.Clear();
-            Debug.Log("Cleared NewTaskSlot1");
+            Debug.Log($"Cleared NewTaskSlot1. Remaining task was: {remainingTask}");
+            
+            // Invoke callback with results
+            OnPhoneClosed?.Invoke(_currentNewTask, _swappedOutTask);
+            
+            Debug.Log($"Phone closed - New task: {_currentNewTask}, Swapped out: {(_swappedOutTask ?? "none")}");
         }
-    
-        Debug.Log("Phone closed");
     }
 
-    private void AddNewTask()
+    private void AddNewTask(string taskText)
     {
         var newTaskSlot = _root.Q<VisualElement>("NewTaskSlot1");
         
@@ -81,13 +106,13 @@ public class TaskPhoneManager : MonoBehaviour
         newTaskSlot.Clear();
         
         // Add new label
-        var label = new Label("Task 5");
+        var label = new Label(taskText);
         label.AddToClassList("task-label");
         label.pickingMode = PickingMode.Ignore;
         label.style.unityTextAlign = TextAnchor.MiddleCenter;
         newTaskSlot.Add(label);
         
-        Debug.Log("Task 5 added to NewTaskSlot1");
+        Debug.Log($"Added new task: {taskText}");
     }
 
     private void RegisterAllTaskBoxes()
@@ -167,6 +192,22 @@ public class TaskPhoneManager : MonoBehaviour
         else if (_firstSelected != clickedBox)
         {
             Debug.Log($"Swapping {_firstSelectedLabel.text} with {clickedLabel.text}");
+            
+            // Track if new task was swapped with an existing task
+            bool firstIsNewTask = (_firstSelectedLabel.text == _currentNewTask);
+            bool secondIsNewTask = (clickedLabel.text == _currentNewTask);
+            
+            // Determine what was swapped out
+            if (firstIsNewTask)
+            {
+                _swappedOutTask = clickedLabel.text;
+                Debug.Log($"New task '{_currentNewTask}' replaced '{_swappedOutTask}'");
+            }
+            else if (secondIsNewTask)
+            {
+                _swappedOutTask = _firstSelectedLabel.text;
+                Debug.Log($"New task '{_currentNewTask}' replaced '{_swappedOutTask}'");
+            }
             
             // Swap the label texts
             string tempText = _firstSelectedLabel.text;

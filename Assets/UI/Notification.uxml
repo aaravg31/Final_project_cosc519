@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/NotificationText.uss" />
+    <Style src="project://database/Assets/UI/NotificationText.uss?fileID=7433441132597879392&amp;guid=fcacc160fbd364761954068ae0b6cb3f&amp;type=3#NotificationText" />
     <ui:VisualElement name="notification-root" class="notification-root" style="flex-grow: 1;">
-        <ui:Button text="New Task Added!" name="notification-button" class="notification-button" />
+        <ui:Button text="New Task!" name="notification-button" class="notification-button" />
     </ui:VisualElement>
 </ui:UXML>
