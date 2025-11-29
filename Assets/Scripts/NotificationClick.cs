@@ -4,9 +4,13 @@ using UnityEngine.UIElements;
 public class NotificationClick : MonoBehaviour
 {
     private string taskToAdd = "Task 5"; // Default task
+    private VRUIPositioner uiPositioner;
 
     void Start()
     {
+        // Get the positioner component
+        uiPositioner = GetComponent<VRUIPositioner>();
+        
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
         Button button1 = root.Q<Button>("notification-button");
 
@@ -32,6 +36,15 @@ public class NotificationClick : MonoBehaviour
                 Debug.LogError("TaskPhoneManager not found!");
             }
         };
+    }
+
+    void OnEnable()
+    {
+        // Reposition when notification appears
+        if (uiPositioner != null)
+        {
+            uiPositioner.ForceReposition();
+        }
     }
 
     // Call this from MainGameScript to set the task

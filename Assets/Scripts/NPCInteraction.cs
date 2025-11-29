@@ -7,16 +7,15 @@ public class NPCInteraction : MonoBehaviour
     public ChoiceUIController dialogueUI;
     public MainGameScript gameManager;
     
-    [Header("Initial Greeting")]
-    public string greetingText = "Hey!!";
-    public float greetingDisplayTime = 2f;
+    [Header("Conversation Data")]
+    public NPCConversationData conversationData;
     
     [Header("Interaction Settings")]
-    public float interactionRadius = 3f; // How close player needs to be
-    public bool requireClick = true; // If false, auto-triggers when in range
+    public float interactionRadius = 3f;
+    public bool requireClick = true;
     
     [Header("Visual Feedback")]
-    public GameObject interactionPrompt; // Optional: UI prompt saying "Press A to talk"
+    public GameObject interactionPrompt;
     
     private Transform playerTransform;
     private bool hasGreeted = false;
@@ -31,12 +30,7 @@ public class NPCInteraction : MonoBehaviour
         {
             playerTransform = xrOrigin.transform;
         }
-        else
-        {
-            Debug.LogError("XR Origin not found!");
-        }
         
-        // Hide interaction prompt initially
         if (interactionPrompt != null)
         {
             interactionPrompt.SetActive(false);
@@ -48,7 +42,6 @@ public class NPCInteraction : MonoBehaviour
         if (playerTransform == null || conversationActive || hasGreeted)
             return;
         
-        // Check distance to player
         float distance = Vector3.Distance(transform.position, playerTransform.position);
         
         if (distance <= interactionRadius)
@@ -58,7 +51,6 @@ public class NPCInteraction : MonoBehaviour
                 OnPlayerEnterRange();
             }
             
-            // If not requiring click, auto-start
             if (!requireClick)
             {
                 StartGreeting();
@@ -76,21 +68,15 @@ public class NPCInteraction : MonoBehaviour
     private void OnPlayerEnterRange()
     {
         playerInRange = true;
-        
-        // Show interaction prompt
         if (interactionPrompt != null)
         {
             interactionPrompt.SetActive(true);
         }
-        
-        Debug.Log("Player in range of NPC");
     }
 
     private void OnPlayerExitRange()
     {
         playerInRange = false;
-        
-        // Hide interaction prompt
         if (interactionPrompt != null)
         {
             interactionPrompt.SetActive(false);
@@ -107,16 +93,22 @@ public class NPCInteraction : MonoBehaviour
 
     private void StartGreeting()
     {
+        if (conversationData == null)
+        {
+            Debug.LogError("No conversation data assigned to NPC!");
+            return;
+        }
+        
         hasGreeted = true;
         conversationActive = true;
         
-        // Hide interaction prompt
         if (interactionPrompt != null)
         {
             interactionPrompt.SetActive(false);
         }
         
-        Debug.Log("NPC: Hey!!");
+        // Set dialogue UI to position near this NPC
+        dialogueUI.SetTargetNPC(transform);
         
         // Lock player movement
         if (gameManager != null)
@@ -125,21 +117,20 @@ public class NPCInteraction : MonoBehaviour
         }
         
         // Show greeting (no choices)
-        dialogueUI.ShowDialogue(greetingText, "", "", null);
+        dialogueUI.ShowDialogue(conversationData.greetingText, "", "", null);
         
-        // After greeting time, start main conversation
-        Invoke("StartMainConversation", greetingDisplayTime);
+        // Start main conversation after greeting
+        Invoke("StartMainConversation", conversationData.greetingDisplayTime);
     }
 
     private void StartMainConversation()
     {
         if (gameManager != null)
         {
-            gameManager.StartNPCConversation();
+            gameManager.StartNPCConversation(conversationData, dialogueUI);
         }
     }
 
-    // Visualize interaction radius in editor
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

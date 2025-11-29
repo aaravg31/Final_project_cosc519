@@ -278,90 +278,41 @@ public class MainGameScript : MonoBehaviour
         Debug.Log($"Player movement {(lockMovement ? "LOCKED" : "UNLOCKED")}");
     }
 
-    public void StartNPCConversation()
+    public void StartNPCConversation(NPCConversationData conversationData, ChoiceUIController dialogueUI)
     {
         Debug.Log("Starting NPC conversation sequence");
-        StartCoroutine(NPCConversationSequence());
+        StartCoroutine(NPCConversationSequence(conversationData, dialogueUI));
     }
 
-    private IEnumerator NPCConversationSequence()
+    private IEnumerator NPCConversationSequence(NPCConversationData data, ChoiceUIController dialogueUI)
     {
-        // First dialogue choice
-        string choice1 = null;
-        bool choice1Made = false;
-        
-        dialogueUI.ShowDialogue(
-            "NPC: What brings you here today?",
-            "I'm here to study",
-            "Just passing by",
-            (choice) =>
-            {
-                choice1 = choice;
-                choice1Made = true;
-            }
-        );
-        
-        yield return new WaitUntil(() => choice1Made);
-        yield return new WaitForSeconds(3f);
-        
-        // Second dialogue based on first choice
-        string choice2 = null;
-        bool choice2Made = false;
-        
-        if (choice1 == "I'm here to study")
+        // Go through each dialogue in sequence
+        foreach (var dialogue in data.dialogueSequence)
         {
+            string choice = null;
+            bool choiceMade = false;
+        
             dialogueUI.ShowDialogue(
-                "NPC: That's great! What subject?",
-                "Mathematics",
-                "Literature",
-                (choice) =>
+                dialogue.npcText,
+                dialogue.choiceA,
+                dialogue.choiceB,
+                (selectedChoice) =>
                 {
-                    choice2 = choice;
-                    choice2Made = true;
+                    choice = selectedChoice;
+                    choiceMade = true;
                 }
             );
+        
+            yield return new WaitUntil(() => choiceMade);
+            yield return new WaitForSeconds(3f);
         }
-        else
-        {
-            dialogueUI.ShowDialogue(
-                "NPC: I see. Well, good luck!",
-                "Thanks",
-                "See you around",
-                (choice) =>
-                {
-                    choice2 = choice;
-                    choice2Made = true;
-                }
-            );
-        }
-        
-        yield return new WaitUntil(() => choice2Made);
-        yield return new WaitForSeconds(3f);
-        
-        // Final dialogue
-        bool finalChoiceMade = false;
-        
-        dialogueUI.ShowDialogue(
-            "NPC: Take care!",
-            "You too!",
-            "Goodbye!",
-            (choice) =>
-            {
-                finalChoiceMade = true;
-                Debug.Log($"Final choice: {choice}");
-            }
-        );
-        
-        yield return new WaitUntil(() => finalChoiceMade);
-        yield return new WaitForSeconds(3f);
-        
-        // Conversation complete - unlock movement
+    
+        // Conversation complete
         LockPlayerMovement(false);
         Debug.Log("Conversation complete - player can move again");
-        
-        // Wait 2-3 seconds, then show notification
-        yield return new WaitForSeconds(2.5f);
-        
-        ShowNewTaskNotification("Complete homework");
+    
+        // Wait then show notification
+        yield return new WaitForSeconds(data.delayBeforeTask);
+        ShowNewTaskNotification(data.taskToAssign);
     }
 }
