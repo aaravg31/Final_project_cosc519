@@ -1878,9 +1878,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d49f0b18b3b1bcc4397e2cf2ee0254d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BlueCreature.Runtime::SanitySystem
-  maxSanity: 20
-  currentSanity: 0
-  decreaseOverTime: 1
+  maxSanity: 100
+  currentSanity: 100
+  decreaseOverTime: 0
   decayRate: 10
   OnStressLevelChanged:
     m_PersistentCalls:

@@ -87,6 +87,41 @@ public class AnxietyEffectController : MonoBehaviour
 
     void ApplyEffects()
     {
+        // Only apply effects if there's stress
+        if (currentStress <= 0.01f)
+        {
+            // No stress - disable all effects
+            if (vignette != null)
+            {
+                vignette.intensity.value = 0f;
+                vignette.active = false;
+            }
+            
+            if (aberration != null)
+            {
+                aberration.intensity.value = 0f;
+                aberration.active = false;
+            }
+            
+            if (grain != null)
+            {
+                grain.intensity.value = 0f;
+                grain.active = false;
+            }
+            
+            if (cameraShakeTransform != null)
+            {
+                cameraShakeTransform.localRotation = Quaternion.Lerp(cameraShakeTransform.localRotation, initialRotation, Time.deltaTime * 2f);
+            }
+            
+            if (tensionAudioSource != null)
+            {
+                tensionAudioSource.volume = 0f;
+            }
+            
+            return; // Exit early
+        }
+        
         // 1. Pulse Logic (Heartbeat)
         // Speed increases with stress
         float pulseSpeed = basePulseSpeed + (currentStress * maxPulseSpeedMultiplier);
@@ -98,28 +133,28 @@ public class AnxietyEffectController : MonoBehaviour
             // Base intensity + Pulse effect
             // Pulse effect only becomes strong at high stress
             float pulseMagnitude = currentStress * 0.2f; // up to 0.2 variance
-            float targetIntensity = Mathf.Lerp(0.2f, maxVignetteIntensity, currentStress);
+            float targetIntensity = Mathf.Lerp(0f, maxVignetteIntensity, currentStress); // Changed from 0.2f to 0f
             
             vignette.intensity.value = targetIntensity + (pulse * pulseMagnitude);
-            vignette.active = vignette.intensity.value > 0.01f;
+            vignette.active = true;
         }
 
         // 3. Chromatic Aberration (Disorientation)
         if (aberration != null)
         {
             aberration.intensity.value = Mathf.Lerp(0f, maxAberration, currentStress);
-            aberration.active = aberration.intensity.value > 0.01f;
+            aberration.active = true;
         }
 
         // 4. Film Grain (Visual Noise)
         if (grain != null)
         {
             grain.intensity.value = Mathf.Lerp(0f, maxGrain, currentStress);
-            grain.active = grain.intensity.value > 0.01f;
+            grain.active = true;
         }
 
         // 5. Camera Shake (Subtle Rotation)
-        if (cameraShakeTransform != null && currentStress > 0.1f)
+        if (cameraShakeTransform != null)
         {
             // Perlin noise for smooth randomness
             float noiseSpeed = 10f;
@@ -130,11 +165,6 @@ public class AnxietyEffectController : MonoBehaviour
             float z = (Mathf.PerlinNoise(Time.time * noiseSpeed, Time.time * noiseSpeed) - 0.5f) * shakeAmount * 0.5f; // Less roll
 
             cameraShakeTransform.localRotation = initialRotation * Quaternion.Euler(x, y, z);
-        }
-        else if (cameraShakeTransform != null)
-        {
-            // Return to normal smoothly
-            cameraShakeTransform.localRotation = Quaternion.Lerp(cameraShakeTransform.localRotation, initialRotation, Time.deltaTime * 2f);
         }
         
         // 6. Audio Tension
