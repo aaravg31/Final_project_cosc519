@@ -148,8 +148,8 @@ Material:
     - _BaseColor: {r: 0.7877358, g: 0.122619264, b: 0.122619264, a: 1}
     - _Color: {r: 0.15218937, g: 0.7412682, b: 0.8962264, a: 1}
     - _EmissionColor: {r: 0.026432903, g: 0.049901508, b: 0.31132078, a: 1}
-    - _EnergyFlowColor: {r: 0.85882354, g: 0.43704876, b: 0.07843138, a: 1}
-    - _FresnelColor: {r: 0.8726415, g: 0.13171947, b: 0.24351782, a: 1}
+    - _EnergyFlowColor: {r: 0.822608, g: 0.41852084, b: 0.9339623, a: 1}
+    - _FresnelColor: {r: 0.6549378, g: 0.13333333, b: 0.8745098, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
