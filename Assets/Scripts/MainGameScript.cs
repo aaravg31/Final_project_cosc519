@@ -7,6 +7,13 @@ public class MainGameScript : MonoBehaviour
     [SerializeField] private GameObject notificationUI;
     [SerializeField] private NotificationClick notificationScript;
     [SerializeField] private ChoiceUIController dialogueUI;
+    [SerializeField] private SanitySystem sanitySystem;
+    
+    [Header("Sanity Settings")]
+    [SerializeField] private float sanityDecreaseAmount = 40f; // Decrease by 40 (100 -> 60)
+    [SerializeField] private float sanityDecreaseSpeed = 2f; // How fast it decreases
+    [SerializeField] private float sanityRecoveryDelay = 10f; // Wait 10s before recovering
+    [SerializeField] private float sanityRecoverySpeed = 2f; // How fast it recovers
 
     private void Start()
     {
@@ -38,6 +45,12 @@ public class MainGameScript : MonoBehaviour
         else
         {
             Debug.LogError("ChoiceUIController not assigned!");
+        }
+        
+        // Check sanity system
+        if (sanitySystem == null)
+        {
+            Debug.LogError("SanitySystem not assigned!");
         }
 
         // Make sure phone is hidden (it should be from TaskPhoneManager.Start())
@@ -170,6 +183,49 @@ public class MainGameScript : MonoBehaviour
             Debug.Log($"User rejected '{newTask}' (didn't swap it in)");
             PerformActionForRejection(newTask);
         }
+        
+        // Start sanity decrease and recovery cycle
+        StartCoroutine(SanityDecreaseAndRecover());
+    }
+
+    private IEnumerator SanityDecreaseAndRecover()
+    {
+        if (sanitySystem == null)
+        {
+            Debug.LogError("Cannot modify sanity - SanitySystem not assigned!");
+            yield break;
+        }
+
+        Debug.Log("Starting sanity decrease...");
+        
+        // Calculate target sanity
+        float targetSanity = sanitySystem.currentSanity - sanityDecreaseAmount;
+        targetSanity = Mathf.Max(targetSanity, 0f); // Don't go below 0
+        
+        // Gradually decrease sanity
+        while (sanitySystem.currentSanity > targetSanity)
+        {
+            sanitySystem.ModifySanity(-sanityDecreaseSpeed * Time.deltaTime);
+            yield return null;
+        }
+        
+        Debug.Log($"Sanity decreased to {sanitySystem.currentSanity}");
+        
+        // Wait before recovery
+        Debug.Log($"Waiting {sanityRecoveryDelay} seconds before recovery...");
+        yield return new WaitForSeconds(sanityRecoveryDelay);
+        
+        // Gradually recover sanity to max
+        Debug.Log("Starting sanity recovery...");
+        while (sanitySystem.currentSanity < sanitySystem.maxSanity)
+        {
+            sanitySystem.ModifySanity(sanityRecoverySpeed * Time.deltaTime);
+            yield return null;
+        }
+        
+        // Ensure we reach exactly max sanity
+        sanitySystem.SetSanity(sanitySystem.maxSanity);
+        Debug.Log($"Sanity recovered to {sanitySystem.currentSanity}");
     }
 
     private void PerformActionBasedOnSwap(string acceptedTask, string droppedTask)
