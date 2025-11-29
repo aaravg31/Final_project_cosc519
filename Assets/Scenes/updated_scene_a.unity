@@ -953,6 +953,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5e7be5f3e8bc0714ebbf8f5cca8d325a, type: 3}
+--- !u!114 &624391645 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6376585216866115734, guid: 15a0d57c8bd2540b2960525edb0ced09, type: 3}
+  m_PrefabInstance: {fileID: 180150418}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626a4d6723d6ad24b9aebb811ad5a3dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement.ContinuousMoveProvider
 --- !u!1 &629427311
 GameObject:
   m_ObjectHideFlags: 0
@@ -987,6 +998,8 @@ MonoBehaviour:
   notificationScript: {fileID: 207548133}
   dialogueUI: {fileID: 893039536}
   sanitySystem: {fileID: 1578943026}
+  characterController: {fileID: 2120578029}
+  moveProvider: {fileID: 624391645}
   sanityDecreaseAmount: 100
   sanityDecreaseSpeed: 5
   sanityRecoveryDelay: 20
@@ -1133,6 +1146,135 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -19.382, y: -30, z: 0}
+--- !u!1 &764170855 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7187212334516397582, guid: 660b6f6fe29bc7e4fad850e01a091342, type: 3}
+  m_PrefabInstance: {fileID: 5774516967551444563}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &764170859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 764170855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a35f6cfbfba9b548aaa00d52cfe8a50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.Interaction.Toolkit::UnityEngine.XR.Interaction.Toolkit.Interactables.XRSimpleInteractable
+  m_InteractionManager: {fileID: 0}
+  m_Colliders: []
+  m_InteractionLayers:
+    m_Bits: 1
+  m_DistanceCalculationMode: 1
+  m_SelectMode: 0
+  m_FocusMode: 1
+  m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
+  m_FirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectEntered:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 764170861}
+        m_TargetAssemblyTypeName: NPCInteraction, Assembly-CSharp
+        m_MethodName: OnNPCClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  m_SelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstFocusEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastFocusExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FocusEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FocusExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Activated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Deactivated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
+--- !u!65 &764170860
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 764170855}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.5910841, y: 2.032547, z: 0.39746663}
+  m_Center: {x: -0.00044751182, y: 0.00045013428, z: -0.00038790717}
+--- !u!114 &764170861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 764170855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaf3b1439a5b84745bebce14d5384a8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCi
+  dialogueUI: {fileID: 893039536}
+  gameManager: {fileID: 629427312}
+  greetingText: Hey!!
+  greetingDisplayTime: 2
+  interactionRadius: 3
+  requireClick: 1
+  interactionPrompt: {fileID: 0}
 --- !u!21 &868065480
 Material:
   serializedVersion: 8
@@ -2067,6 +2209,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &2120578029 stripped
+CharacterController:
+  m_CorrespondingSourceObject: {fileID: 1350799291161352786, guid: 15a0d57c8bd2540b2960525edb0ced09, type: 3}
+  m_PrefabInstance: {fileID: 180150418}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3486318621932098760
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2195,7 +2342,16 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7187212334516397582, guid: 660b6f6fe29bc7e4fad850e01a091342, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 764170861}
+    - targetCorrespondingSourceObject: {fileID: 7187212334516397582, guid: 660b6f6fe29bc7e4fad850e01a091342, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 764170860}
+    - targetCorrespondingSourceObject: {fileID: 7187212334516397582, guid: 660b6f6fe29bc7e4fad850e01a091342, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 764170859}
   m_SourcePrefab: {fileID: 100100000, guid: 660b6f6fe29bc7e4fad850e01a091342, type: 3}
 --- !u!1001 &7357734044478588198
 PrefabInstance:
