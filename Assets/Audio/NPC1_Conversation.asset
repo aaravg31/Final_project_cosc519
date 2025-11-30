@@ -13,13 +13,14 @@ MonoBehaviour:
   m_Name: NPC1_Conversation
   m_EditorClassIdentifier: Assembly-CSharp::NPCConversationData
   greetingText: Hey!!
+  greetingAudioClip: {fileID: 8300000, guid: d1f80f822a7e84647af60a5669981888, type: 3}
   greetingDisplayTime: 2
   dialogueSequence:
-  - npcText: How was your week?
-    choiceA: Polite
-    choiceB: Tired
-  - npcText: It's been one of those weeks
+  - npcText: It's been one of those weeks...
+    npcAudioClip: {fileID: 8300000, guid: 4550566ed2f1e4633bd06ca90a9fd9e4, type: 3}
     choiceA: Overwhelm/Anxiety
+    choiceAAudioClip: {fileID: 8300000, guid: 2fe6050964d2344978533f8e9f44e5b4, type: 3}
     choiceB: Avoidance/Procrastination
+    choiceBAudioClip: {fileID: 8300000, guid: 3b0656c057e014ad2a3f1ec679acddba, type: 3}
   taskToAssign: Lab Report (Due Tomorrow)
   delayBeforeTask: 2.5
