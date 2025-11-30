@@ -16,7 +16,7 @@ MonoBehaviour:
   greetingAudioClip: {fileID: 0}
   greetingDisplayTime: 2
   dialogueSequence:
-  - npcText: I need you to do your grade!
+  - npcText: I need you to do your grading!
     npcAudioClip: {fileID: 0}
     choiceA: Overcomittment
     choiceAAudioClip: {fileID: 0}

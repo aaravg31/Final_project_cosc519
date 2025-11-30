@@ -56,6 +56,12 @@ public class TaskPhoneManager : MonoBehaviour
     
         _root.style.display = DisplayStyle.Flex;
         AddNewTask(taskText);
+        
+        // Play phone open sound
+        if (UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.PlayPhoneOpenSound();
+        }
     
         Debug.Log($"Phone opened with task: {taskText}");
     }

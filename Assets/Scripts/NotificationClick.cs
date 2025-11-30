@@ -3,10 +3,9 @@ using UnityEngine.UIElements;
 
 public class NotificationClick : MonoBehaviour
 {
-    private string taskToAdd = "Task 5"; // Default task
+    private string taskToAdd = "Task 5";
     private VRUIPositioner uiPositioner;
     private UIDocument uiDocument;
-    private bool buttonRegistered = false;
 
     void Start()
     {
@@ -23,6 +22,12 @@ public class NotificationClick : MonoBehaviour
         if (uiPositioner != null)
         {
             uiPositioner.ForceReposition();
+        }
+        
+        // Play notification sound
+        if (UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.PlayNotificationSound();
         }
     }
 
@@ -47,10 +52,7 @@ public class NotificationClick : MonoBehaviour
             return;
         }
 
-        // Clear any existing callbacks to avoid duplicates
         button1.clicked -= OnButtonClicked;
-        
-        // Register the callback
         button1.clicked += OnButtonClicked;
         
         Debug.Log("Notification button registered");
@@ -71,7 +73,6 @@ public class NotificationClick : MonoBehaviour
         }
     }
 
-    // Call this from MainGameScript to set the task
     public void SetTask(string task)
     {
         taskToAdd = task;
