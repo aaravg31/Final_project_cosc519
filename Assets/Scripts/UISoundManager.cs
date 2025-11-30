@@ -16,6 +16,10 @@ public class UISoundManager : MonoBehaviour
     [Header("Intro Audio")]
     public AudioClip introAudio;
     
+    [Header("Ending Audio (Back-to-Back)")]
+    public AudioClip endingAudio1;
+    public AudioClip endingAudio2;
+    
     [Header("Volume Settings")]
     [Range(0f, 1f)]
     public float notificationVolume = 0.7f;
@@ -24,7 +28,7 @@ public class UISoundManager : MonoBehaviour
     [Range(0f, 1f)]
     public float backgroundVolume = 0.3f;
     [Range(0f, 1f)]
-    public float backgroundVolumeWhenAnxious = 0.05f; // Very low when anxious
+    public float backgroundVolumeWhenAnxious = 0.05f;
     
     private static UISoundManager _instance;
     public static UISoundManager Instance
@@ -69,7 +73,7 @@ public class UISoundManager : MonoBehaviour
         backgroundAudioSource.playOnAwake = false;
         backgroundAudioSource.loop = true;
         backgroundAudioSource.spatialBlend = 0f;
-        backgroundAudioSource.volume = 0f; // Start at 0 for intro
+        backgroundAudioSource.volume = 0f;
         
         // Start background music but muted
         if (backgroundMusic != null)
@@ -98,9 +102,6 @@ public class UISoundManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Play a custom one-shot audio clip
-    /// </summary>
     public void PlayCustomClip(AudioClip clip, float volume = 0.7f)
     {
         if (clip != null && uiAudioSource != null)
@@ -110,9 +111,6 @@ public class UISoundManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Play intro audio and return its duration
-    /// </summary>
     public float PlayIntroAudio()
     {
         if (introAudio != null && uiAudioSource != null)
@@ -125,26 +123,55 @@ public class UISoundManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Fade background music to normal volume
+    /// Play ending audio clips back-to-back and return total duration
     /// </summary>
+    public float PlayEndingAudioSequence()
+    {
+        float totalDuration = 0f;
+        
+        if (endingAudio1 != null)
+        {
+            uiAudioSource.clip = endingAudio1;
+            uiAudioSource.Play();
+            totalDuration += endingAudio1.length;
+            Debug.Log($"Playing ending audio 1: {endingAudio1.name}, Duration: {endingAudio1.length}s");
+        }
+        
+        if (endingAudio2 != null)
+        {
+            totalDuration += endingAudio2.length;
+            Debug.Log($"Ending audio 2 queued: {endingAudio2.name}, Duration: {endingAudio2.length}s");
+        }
+        
+        Debug.Log($"Total ending sequence duration: {totalDuration}s");
+        return totalDuration;
+    }
+    
+    /// <summary>
+    /// Play the second ending audio (call this after first one finishes)
+    /// </summary>
+    public void PlayEndingAudio2()
+    {
+        if (endingAudio2 != null && uiAudioSource != null)
+        {
+            uiAudioSource.clip = endingAudio2;
+            uiAudioSource.Play();
+            Debug.Log($"Now playing ending audio 2: {endingAudio2.name}");
+        }
+    }
+    
     public void FadeBackgroundToNormal(float duration = 2f)
     {
         StopAllCoroutines();
         StartCoroutine(FadeBackgroundVolume(backgroundVolume, duration));
     }
     
-    /// <summary>
-    /// Fade background music to anxious (very low) volume
-    /// </summary>
     public void FadeBackgroundToAnxious(float duration = 2f)
     {
         StopAllCoroutines();
         StartCoroutine(FadeBackgroundVolume(backgroundVolumeWhenAnxious, duration));
     }
     
-    /// <summary>
-    /// Fade background to specific volume
-    /// </summary>
     public void FadeBackgroundTo(float targetVolume, float duration = 2f)
     {
         StopAllCoroutines();

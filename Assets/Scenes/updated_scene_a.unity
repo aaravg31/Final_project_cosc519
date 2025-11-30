@@ -981,10 +981,12 @@ MonoBehaviour:
   phoneOpenSound: {fileID: 8300000, guid: 581b93a9628ba4fa5bf958ed85b49bfc, type: 3}
   backgroundMusic: {fileID: 8300000, guid: 0f5b72cc2f81e48be9cd25952f4fb322, type: 3}
   introAudio: {fileID: 8300000, guid: 936ccd7dc32b945758ae46d49d3c06f2, type: 3}
+  endingAudio1: {fileID: 8300000, guid: 69c3fb9f9f57d4e5c938986a5c0d66b9, type: 3}
+  endingAudio2: {fileID: 8300000, guid: 9f3104307679742caa3d85ca8c521ca8, type: 3}
   notificationVolume: 0.6
   phoneOpenVolume: 0.4
-  backgroundVolume: 0.25
-  backgroundVolumeWhenAnxious: 0.05
+  backgroundVolume: 0.2
+  backgroundVolumeWhenAnxious: 0.008
 --- !u!114 &624391645 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6376585216866115734, guid: 15a0d57c8bd2540b2960525edb0ced09, type: 3}
@@ -1050,6 +1052,10 @@ MonoBehaviour:
   afterFirstInteractionAudio: {fileID: 8300000, guid: 44fd71c7f126f4e77bcf88a1e54351ad, type: 3}
   afterSecondInteractionAudio: {fileID: 8300000, guid: 94391a840fa694c1ebb16d142db3762f, type: 3}
   secondNotificationAudio: {fileID: 8300000, guid: a6afb80f3800d43a98e6025b38f5a6a1, type: 3}
+  anxietyClip1: {fileID: 8300000, guid: 0bd16c0c4e2b94430969f6941af5a63a, type: 3}
+  anxietyClip2: {fileID: 8300000, guid: b5eb84db077f44b1b843395baa5a05c9, type: 3}
+  anxietyClip3: {fileID: 8300000, guid: da2ec4ebeb1c7400fbe1a4fb27e6eb53, type: 3}
+  anxietyClip4: {fileID: 8300000, guid: 2724698501bf846578c6888b022bbf8e, type: 3}
   sanityDecreaseSpeed: 5
   sanityRecoverySpeed: 5
 --- !u!4 &629427313

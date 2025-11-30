@@ -19,12 +19,19 @@ public class MainGameScript : MonoBehaviour
     [SerializeField] private AudioClip afterSecondInteractionAudio;
     [SerializeField] private AudioClip secondNotificationAudio;
     
+    [Header("Random Anxiety Audio (1 second clips)")]
+    [SerializeField] private AudioClip anxietyClip1;
+    [SerializeField] private AudioClip anxietyClip2;
+    [SerializeField] private AudioClip anxietyClip3;
+    [SerializeField] private AudioClip anxietyClip4;
+    
     [Header("Sanity Settings")]
     [SerializeField] private float sanityDecreaseSpeed = 2f;
     [SerializeField] private float sanityRecoverySpeed = 2f;
     
     private bool movementLocked = false;
     private int interactionCount = 0;
+    private AudioClip[] anxietyClips;
 
     private void Start()
     {
@@ -44,6 +51,9 @@ public class MainGameScript : MonoBehaviour
         {
             dialogueUI.HideAll();
         }
+
+        // Store anxiety clips in array for random selection
+        anxietyClips = new AudioClip[] { anxietyClip1, anxietyClip2, anxietyClip3, anxietyClip4 };
 
         // Lock player at start for intro
         LockPlayerMovement(true);
@@ -66,25 +76,19 @@ public class MainGameScript : MonoBehaviour
     {
         if (UISoundManager.Instance != null)
         {
-            // Play intro audio and get duration
             float introDuration = UISoundManager.Instance.PlayIntroAudio();
             
             if (introDuration > 0)
             {
                 Debug.Log($"Playing intro for {introDuration} seconds");
-                
-                // Wait for intro to finish
                 yield return new WaitForSeconds(introDuration);
             }
             
-            // Fade in background music
             UISoundManager.Instance.FadeBackgroundToNormal(2f);
         }
         
-        // Wait for fade to complete
         yield return new WaitForSeconds(2f);
         
-        // Unlock player movement
         LockPlayerMovement(false);
         Debug.Log("Intro complete - player can move");
     }
@@ -176,17 +180,100 @@ public class MainGameScript : MonoBehaviour
             UISoundManager.Instance.FadeBackgroundToAnxious(1f);
         }
         
-        // Decrease sanity to 70
-        yield return StartCoroutine(DecreaseSanityTo(70f));
+        // Decrease sanity to 0 (100% stress)
+        yield return StartCoroutine(DecreaseSanityTo(0f));
         
-        Debug.Log("Second interaction complete");
+        Debug.Log("Starting random anxiety audio sequence (20 seconds)");
+        
+        // Play random anxiety clips for 20 seconds (10 clips, 2 seconds apart)
+        yield return StartCoroutine(PlayRandomAnxietyClips(20f, 2f));
+        
+        Debug.Log("Anxiety sequence complete - restoring sanity");
+        
+        // Restore sanity back to 100
+        yield return StartCoroutine(RestoreSanityToMax());
+        
+        // Fade background back to normal
+        if (UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.FadeBackgroundToNormal(2f);
+        }
+        
+        yield return new WaitForSeconds(2f);
+        
+        Debug.Log("Playing ending audio sequence");
+        
+        // Lock player for ending
+        LockPlayerMovement(true);
+        
+        // Play ending audio clips back-to-back
+        yield return StartCoroutine(PlayEndingSequence());
+        
+        // Unlock player after ending
+        LockPlayerMovement(false);
+        
+        Debug.Log("Second interaction complete - Game sequence finished!");
+    }
+
+    private IEnumerator PlayRandomAnxietyClips(float totalDuration, float interval)
+    {
+        float elapsed = 0f;
+        int clipCount = 0;
+        
+        while (elapsed < totalDuration)
+        {
+            // Pick random clip
+            AudioClip randomClip = anxietyClips[Random.Range(0, anxietyClips.Length)];
+            
+            if (randomClip != null && UISoundManager.Instance != null)
+            {
+                UISoundManager.Instance.PlayCustomClip(randomClip, 0.8f);
+                clipCount++;
+                Debug.Log($"Playing random anxiety clip #{clipCount}: {randomClip.name}");
+            }
+            
+            // Wait for interval
+            yield return new WaitForSeconds(interval);
+            elapsed += interval;
+        }
+        
+        Debug.Log($"Played {clipCount} random anxiety clips over {totalDuration} seconds");
+    }
+
+    private IEnumerator PlayEndingSequence()
+    {
+        if (UISoundManager.Instance != null)
+        {
+            // Play first ending audio
+            float audio1Duration = 0f;
+            if (UISoundManager.Instance.endingAudio1 != null)
+            {
+                audio1Duration = UISoundManager.Instance.endingAudio1.length;
+                UISoundManager.Instance.PlayEndingAudioSequence();
+                
+                Debug.Log($"Playing ending audio 1, duration: {audio1Duration}s");
+                yield return new WaitForSeconds(audio1Duration);
+            }
+            
+            // Play second ending audio
+            if (UISoundManager.Instance.endingAudio2 != null)
+            {
+                float audio2Duration = UISoundManager.Instance.endingAudio2.length;
+                UISoundManager.Instance.PlayEndingAudio2();
+                
+                Debug.Log($"Playing ending audio 2, duration: {audio2Duration}s");
+                yield return new WaitForSeconds(audio2Duration);
+            }
+        }
+        
+        Debug.Log("Ending sequence complete");
     }
 
     private IEnumerator DecreaseSanityTo(float targetSanity)
     {
         if (sanitySystem == null) yield break;
 
-        Debug.Log($"Decreasing sanity to {targetSanity}");
+        Debug.Log($"Decreasing sanity from {sanitySystem.currentSanity} to {targetSanity}");
         
         while (sanitySystem.currentSanity > targetSanity)
         {
@@ -202,7 +289,7 @@ public class MainGameScript : MonoBehaviour
     {
         if (sanitySystem == null) yield break;
 
-        Debug.Log($"Restoring sanity to max");
+        Debug.Log($"Restoring sanity from {sanitySystem.currentSanity} to max");
         
         while (sanitySystem.currentSanity < sanitySystem.maxSanity)
         {
