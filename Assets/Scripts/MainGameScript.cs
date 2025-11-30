@@ -167,51 +167,51 @@ public class MainGameScript : MonoBehaviour
     private IEnumerator HandleSecondInteractionComplete()
     {
         Debug.Log("=== SECOND INTERACTION COMPLETE ===");
-        
+    
         // Play audio
         if (afterSecondInteractionAudio != null && UISoundManager.Instance != null)
         {
             UISoundManager.Instance.PlayCustomClip(afterSecondInteractionAudio, 0.7f);
         }
-        
+    
         // Fade background music to anxious level
         if (UISoundManager.Instance != null)
         {
             UISoundManager.Instance.FadeBackgroundToAnxious(1f);
         }
-        
+    
         // Decrease sanity to 0 (100% stress)
         yield return StartCoroutine(DecreaseSanityTo(0f));
-        
+    
         Debug.Log("Starting random anxiety audio sequence (20 seconds)");
-        
+    
         // Play random anxiety clips for 20 seconds (10 clips, 2 seconds apart)
         yield return StartCoroutine(PlayRandomAnxietyClips(20f, 2f));
-        
+    
         Debug.Log("Anxiety sequence complete - restoring sanity");
-        
+    
         // Restore sanity back to 100
         yield return StartCoroutine(RestoreSanityToMax());
-        
+    
         // Fade background back to normal
         if (UISoundManager.Instance != null)
         {
             UISoundManager.Instance.FadeBackgroundToNormal(2f);
         }
-        
+    
         yield return new WaitForSeconds(2f);
-        
+    
         Debug.Log("Playing ending audio sequence");
-        
+    
         // Lock player for ending
         LockPlayerMovement(true);
-        
-        // Play ending audio clips back-to-back
+    
+        // Play ending audio clips with background muted
         yield return StartCoroutine(PlayEndingSequence());
-        
+    
         // Unlock player after ending
         LockPlayerMovement(false);
-        
+    
         Debug.Log("Second interaction complete - Game sequence finished!");
     }
 
@@ -242,6 +242,14 @@ public class MainGameScript : MonoBehaviour
 
     private IEnumerator PlayEndingSequence()
     {
+        // Mute background music for ending
+        if (UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.FadeBackgroundTo(0f, 1f);
+        }
+    
+        yield return new WaitForSeconds(1f); // Wait for fade to complete
+    
         if (UISoundManager.Instance != null)
         {
             // Play first ending audio
@@ -250,22 +258,26 @@ public class MainGameScript : MonoBehaviour
             {
                 audio1Duration = UISoundManager.Instance.endingAudio1.length;
                 UISoundManager.Instance.PlayEndingAudioSequence();
-                
+            
                 Debug.Log($"Playing ending audio 1, duration: {audio1Duration}s");
                 yield return new WaitForSeconds(audio1Duration);
             }
-            
+        
+            // 3 second delay between clips
+            Debug.Log("3 second delay before ending audio 2");
+            yield return new WaitForSeconds(3f);
+        
             // Play second ending audio
             if (UISoundManager.Instance.endingAudio2 != null)
             {
                 float audio2Duration = UISoundManager.Instance.endingAudio2.length;
                 UISoundManager.Instance.PlayEndingAudio2();
-                
+            
                 Debug.Log($"Playing ending audio 2, duration: {audio2Duration}s");
                 yield return new WaitForSeconds(audio2Duration);
             }
         }
-        
+    
         Debug.Log("Ending sequence complete");
     }
 
