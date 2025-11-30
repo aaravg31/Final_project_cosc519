@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8d0a20639b124258b7ef18a8f94a585, type: 3}
   m_Name: NPC2_Conversation
   m_EditorClassIdentifier: Assembly-CSharp::NPCConversationData
-  greetingText: Hey!!
+  greetingText: Ah! there you are
   greetingAudioClip: {fileID: 0}
-  greetingDisplayTime: 2
+  greetingDisplayTime: 1
   dialogueSequence:
-  - npcText: I need you to do your grading!
-    npcAudioClip: {fileID: 0}
-    choiceA: Overcomittment
-    choiceAAudioClip: {fileID: 0}
-    choiceB: High Overwhelm
-    choiceBAudioClip: {fileID: 0}
+  - npcText: I need you to do your marking
+    npcAudioClip: {fileID: 8300000, guid: c7d2d0fb61af8487abf4d8f817ce9f6b, type: 3}
+    choiceA: Reliable
+    choiceAAudioClip: {fileID: 8300000, guid: 292a3d40973f443bc9657c1d44cb74e3, type: 3}
+    choiceB: Overwhelmed
+    choiceBAudioClip: {fileID: 8300000, guid: 53823f47f06b14c6bace070c364da935, type: 3}
   taskToAssign: Grade Assingments
   delayBeforeTask: 2.5
