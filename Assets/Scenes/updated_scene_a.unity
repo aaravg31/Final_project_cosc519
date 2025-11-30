@@ -980,9 +980,11 @@ MonoBehaviour:
   notificationSound: {fileID: 8300000, guid: 822b48a24380942ebac3592bc9763ba5, type: 3}
   phoneOpenSound: {fileID: 8300000, guid: 581b93a9628ba4fa5bf958ed85b49bfc, type: 3}
   backgroundMusic: {fileID: 8300000, guid: 0f5b72cc2f81e48be9cd25952f4fb322, type: 3}
-  notificationVolume: 0.7
-  phoneOpenVolume: 0.5
-  backgroundVolume: 0.3
+  introAudio: {fileID: 8300000, guid: 936ccd7dc32b945758ae46d49d3c06f2, type: 3}
+  notificationVolume: 0.6
+  phoneOpenVolume: 0.4
+  backgroundVolume: 0.25
+  backgroundVolumeWhenAnxious: 0.05
 --- !u!114 &624391645 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6376585216866115734, guid: 15a0d57c8bd2540b2960525edb0ced09, type: 3}

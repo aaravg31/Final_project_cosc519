@@ -24,7 +24,7 @@ public class MainGameScript : MonoBehaviour
     [SerializeField] private float sanityRecoverySpeed = 2f;
     
     private bool movementLocked = false;
-    private int interactionCount = 0; // Track which NPC interaction
+    private int interactionCount = 0;
 
     private void Start()
     {
@@ -33,50 +33,62 @@ public class MainGameScript : MonoBehaviour
         {
             phoneManager.OnPhoneClosed += HandlePhoneClosed;
         }
-        else
-        {
-            Debug.LogError("TaskPhoneManager not assigned!");
-        }
 
         // Hide UIs at start
         if (notificationUI != null)
         {
             notificationUI.SetActive(false);
         }
-        else
-        {
-            Debug.LogError("Notification UI not assigned!");
-        }
 
-        // Make sure dialogue UI is hidden
         if (dialogueUI != null)
         {
             dialogueUI.HideAll();
         }
-        else
-        {
-            Debug.LogError("ChoiceUIController not assigned!");
-        }
-        
-        // Check sanity system
-        if (sanitySystem == null)
-        {
-            Debug.LogError("SanitySystem not assigned!");
-        }
 
-        Debug.Log("Game started - UIs hidden");
+        // Lock player at start for intro
+        LockPlayerMovement(true);
+        
+        Debug.Log("Game started - Playing intro");
+        
+        // Play intro sequence
+        StartCoroutine(PlayIntroSequence());
     }
 
     private void OnDestroy()
     {
-        // Unsubscribe to prevent memory leaks
         if (phoneManager != null)
         {
             phoneManager.OnPhoneClosed -= HandlePhoneClosed;
         }
     }
 
-    // Call this when you want to show a new task notification
+    private IEnumerator PlayIntroSequence()
+    {
+        if (UISoundManager.Instance != null)
+        {
+            // Play intro audio and get duration
+            float introDuration = UISoundManager.Instance.PlayIntroAudio();
+            
+            if (introDuration > 0)
+            {
+                Debug.Log($"Playing intro for {introDuration} seconds");
+                
+                // Wait for intro to finish
+                yield return new WaitForSeconds(introDuration);
+            }
+            
+            // Fade in background music
+            UISoundManager.Instance.FadeBackgroundToNormal(2f);
+        }
+        
+        // Wait for fade to complete
+        yield return new WaitForSeconds(2f);
+        
+        // Unlock player movement
+        LockPlayerMovement(false);
+        Debug.Log("Intro complete - player can move");
+    }
+
     private void ShowNewTaskNotification(string taskName)
     {
         Debug.Log($"Showing notification for task: {taskName}");
@@ -86,13 +98,8 @@ public class MainGameScript : MonoBehaviour
             notificationScript.SetTask(taskName);
             notificationUI.SetActive(true);
         }
-        else
-        {
-            Debug.LogError("NotificationClick script not assigned!");
-        }
     }
 
-    // This gets called when the phone closes
     private void HandlePhoneClosed(string newTask, string swappedOutTask)
     {
         Debug.Log($"=== Phone Closed ===");
@@ -105,19 +112,16 @@ public class MainGameScript : MonoBehaviour
         }
         else
         {
-            Debug.Log($"User rejected '{newTask}' (didn't swap it in)");
+            Debug.Log($"User rejected '{newTask}'");
             PerformActionForRejection(newTask);
         }
         
-        // Handle different interactions based on count
         if (interactionCount == 1)
         {
-            // After FIRST interaction (first phone close)
             StartCoroutine(HandleFirstInteractionComplete());
         }
         else if (interactionCount == 2)
         {
-            // After SECOND interaction (second phone close)
             StartCoroutine(HandleSecondInteractionComplete());
         }
     }
@@ -126,119 +130,104 @@ public class MainGameScript : MonoBehaviour
     {
         Debug.Log("=== FIRST INTERACTION COMPLETE ===");
         
-        // Play audio for first interaction
+        // Play audio
         if (afterFirstInteractionAudio != null && UISoundManager.Instance != null)
         {
             UISoundManager.Instance.PlayCustomClip(afterFirstInteractionAudio, 0.7f);
         }
         
-        // Decrease sanity by 50 (from 100 to 50)
+        // Fade background music to anxious level
+        if (UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.FadeBackgroundToAnxious(1f);
+        }
+        
+        // Decrease sanity by 50
         yield return StartCoroutine(DecreaseSanityTo(50f));
         
-        // Wait a bit at low sanity
+        // Wait at low sanity
         yield return new WaitForSeconds(2f);
         
-        // Restore sanity back to 100
+        // Restore sanity
         yield return StartCoroutine(RestoreSanityToMax());
         
-        Debug.Log("First interaction sanity cycle complete");
+        // Fade background music back to normal
+        if (UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.FadeBackgroundToNormal(2f);
+        }
+        
+        Debug.Log("First interaction complete");
     }
 
     private IEnumerator HandleSecondInteractionComplete()
     {
         Debug.Log("=== SECOND INTERACTION COMPLETE ===");
         
-        // Play audio right after second interaction ends
+        // Play audio
         if (afterSecondInteractionAudio != null && UISoundManager.Instance != null)
         {
             UISoundManager.Instance.PlayCustomClip(afterSecondInteractionAudio, 0.7f);
         }
         
-        // Decrease sanity by 30 (from 100 to 70)
+        // Fade background music to anxious level
+        if (UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.FadeBackgroundToAnxious(1f);
+        }
+        
+        // Decrease sanity to 70
         yield return StartCoroutine(DecreaseSanityTo(70f));
         
-        Debug.Log("Second interaction sanity decrease complete");
+        Debug.Log("Second interaction complete");
     }
 
     private IEnumerator DecreaseSanityTo(float targetSanity)
     {
-        if (sanitySystem == null)
-        {
-            Debug.LogError("Cannot modify sanity - SanitySystem not assigned!");
-            yield break;
-        }
+        if (sanitySystem == null) yield break;
 
-        Debug.Log($"Decreasing sanity from {sanitySystem.currentSanity} to {targetSanity}");
+        Debug.Log($"Decreasing sanity to {targetSanity}");
         
-        // Gradually decrease sanity
         while (sanitySystem.currentSanity > targetSanity)
         {
             sanitySystem.ModifySanity(-sanityDecreaseSpeed * Time.deltaTime);
             yield return null;
         }
         
-        // Ensure exact value
         sanitySystem.SetSanity(targetSanity);
         Debug.Log($"Sanity decreased to {sanitySystem.currentSanity}");
     }
 
     private IEnumerator RestoreSanityToMax()
     {
-        if (sanitySystem == null)
-        {
-            Debug.LogError("Cannot modify sanity - SanitySystem not assigned!");
-            yield break;
-        }
+        if (sanitySystem == null) yield break;
 
-        Debug.Log($"Restoring sanity from {sanitySystem.currentSanity} to {sanitySystem.maxSanity}");
+        Debug.Log($"Restoring sanity to max");
         
-        // Gradually restore sanity
         while (sanitySystem.currentSanity < sanitySystem.maxSanity)
         {
             sanitySystem.ModifySanity(sanityRecoverySpeed * Time.deltaTime);
             yield return null;
         }
         
-        // Ensure exact max value
         sanitySystem.SetSanity(sanitySystem.maxSanity);
         Debug.Log($"Sanity restored to {sanitySystem.currentSanity}");
     }
 
     private void PerformActionBasedOnSwap(string acceptedTask, string droppedTask)
     {
-        // Your custom logic here based on what was swapped
-        Debug.Log($"Performing action because {droppedTask} was replaced with {acceptedTask}");
-        
-        // Example:
-        if (droppedTask == "Task 1")
-        {
-            Debug.Log("Task 1 was dropped - trigger consequence A");
-        }
-        else if (droppedTask == "Task 2")
-        {
-            Debug.Log("Task 2 was dropped - trigger consequence B");
-        }
-        else if (droppedTask == "Task 3")
-        {
-            Debug.Log("Task 3 was dropped - trigger consequence C");
-        }
-        else if (droppedTask == "Task 4")
-        {
-            Debug.Log("Task 4 was dropped - trigger consequence D");
-        }
+        Debug.Log($"Performing action: {droppedTask} replaced with {acceptedTask}");
     }
 
     private void PerformActionForRejection(string rejectedTask)
     {
-        // Logic for when user closes without swapping
-        Debug.Log($"{rejectedTask} was rejected - maybe offer it again later?");
+        Debug.Log($"{rejectedTask} was rejected");
     }
     
     public void LockPlayerMovement(bool lockMovement)
     {
         movementLocked = lockMovement;
         
-        // Disable/Enable continuous movement
         if (moveProvider != null)
         {
             moveProvider.enabled = !lockMovement;
@@ -251,23 +240,20 @@ public class MainGameScript : MonoBehaviour
     {
         Debug.Log("Starting NPC conversation sequence");
         
-        // Increment interaction count
         interactionCount++;
-        Debug.Log($"This is interaction #{interactionCount}");
+        Debug.Log($"Interaction #{interactionCount}");
         
         StartCoroutine(NPCConversationSequence(conversationData, dialogueUI));
     }
 
     private IEnumerator NPCConversationSequence(NPCConversationData data, ChoiceUIController dialogueUI)
     {
-        // Go through each dialogue in sequence
         foreach (var dialogue in data.dialogueSequence)
         {
             string choice = null;
             bool choiceMade = false;
             bool npcAudioComplete = false;
-    
-            // Show dialogue with audio FIRST
+        
             dialogueUI.ShowDialogue(
                 dialogue.npcText,
                 dialogue.choiceA,
@@ -280,22 +266,16 @@ public class MainGameScript : MonoBehaviour
                     choiceMade = true;
                 }
             );
-        
-            // THEN set choice audio callbacks AFTER ShowDialogue
+            
             dialogueUI.SetChoiceAudioAndCallbacks(dialogue.choiceAAudioClip, dialogue.choiceBAudioClip);
-    
-            // Wait for user to make a choice
+        
             yield return new WaitUntil(() => choiceMade);
-    
-            // Small buffer before next dialogue
             yield return new WaitForSeconds(0.5f);
         }
-
-        // Conversation complete
+    
         LockPlayerMovement(false);
-        Debug.Log("Conversation complete - player can move again");
-
-        // Play audio for second notification ONLY on second interaction
+        Debug.Log("Conversation complete - player can move");
+    
         if (interactionCount == 2 && secondNotificationAudio != null)
         {
             yield return new WaitForSeconds(0.5f);
@@ -304,8 +284,7 @@ public class MainGameScript : MonoBehaviour
                 UISoundManager.Instance.PlayCustomClip(secondNotificationAudio, 0.7f);
             }
         }
-
-        // Wait then show notification
+    
         yield return new WaitForSeconds(data.delayBeforeTask);
         ShowNewTaskNotification(data.taskToAssign);
     }
