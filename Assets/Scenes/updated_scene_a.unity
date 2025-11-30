@@ -1045,9 +1045,10 @@ MonoBehaviour:
   sanitySystem: {fileID: 1578943026}
   characterController: {fileID: 2120578029}
   moveProvider: {fileID: 624391645}
-  sanityDecreaseAmount: 100
+  afterFirstInteractionAudio: {fileID: 8300000, guid: 44fd71c7f126f4e77bcf88a1e54351ad, type: 3}
+  afterSecondInteractionAudio: {fileID: 8300000, guid: 94391a840fa694c1ebb16d142db3762f, type: 3}
+  secondNotificationAudio: {fileID: 8300000, guid: a6afb80f3800d43a98e6025b38f5a6a1, type: 3}
   sanityDecreaseSpeed: 5
-  sanityRecoveryDelay: 20
   sanityRecoverySpeed: 5
 --- !u!4 &629427313
 Transform:

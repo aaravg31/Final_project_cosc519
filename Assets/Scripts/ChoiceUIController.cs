@@ -8,9 +8,9 @@ public class ChoiceUIController : MonoBehaviour
     [SerializeField] private UIDocument uiDocument;
     
     [Header("Positioning")]
-    [SerializeField] private Transform targetNPC; // Which NPC to position near
-    [SerializeField] private Vector3 offsetFromNPC = new Vector3(2f, 5f, 0f); // Right, up, forward
-    [SerializeField] private bool followNPC = false; // Should it follow NPC position?
+    [SerializeField] private Transform targetNPC;
+    [SerializeField] private Vector3 offsetFromNPC = new Vector3(2f, 5f, 0f);
+    [SerializeField] private bool followNPC = false;
     
     private VisualElement root;
     private VisualElement npcBubble;
@@ -25,8 +25,11 @@ public class ChoiceUIController : MonoBehaviour
     private Action<string> onChoiceSelected;
     private Coroutine currentDialogueCoroutine;
     private Transform mainCamera;
-    
     private System.Action onAudioComplete;
+    
+    // Store current choice actions so we can unregister them
+    private System.Action currentChoiceAAction;
+    private System.Action currentChoiceBAction;
 
     private void Start()
     {
@@ -46,8 +49,6 @@ public class ChoiceUIController : MonoBehaviour
     
         // Hide everything initially
         HideAll();
-    
-        // NOTE: We'll register callbacks dynamically when showing dialogue
     }
 
     private void LateUpdate()
@@ -72,10 +73,9 @@ public class ChoiceUIController : MonoBehaviour
         
         // Face the camera
         transform.LookAt(mainCamera);
-        transform.Rotate(0, 180, 0); // Flip to face player
+        transform.Rotate(0, 180, 0);
     }
 
-    // Set which NPC this dialogue is for
     public void SetTargetNPC(Transform npc)
     {
         targetNPC = npc;
@@ -85,7 +85,6 @@ public class ChoiceUIController : MonoBehaviour
         }
     }
 
-    // Call this to show dialogue with choices
     public void ShowDialogue(string npcDialogue, string optionA, string optionB, AudioClip npcAudio, System.Action onNPCAudioComplete, Action<string> callback = null)
     {
         // Stop any running dialogue coroutines
@@ -93,8 +92,11 @@ public class ChoiceUIController : MonoBehaviour
         {
             StopCoroutine(currentDialogueCoroutine);
         }
+        
+        // Unregister old callbacks
+        UnregisterChoiceCallbacks();
 
-        // IMPORTANT: Reset the flag for new dialogue
+        // Reset state
         choicesMade = false;
         onChoiceSelected = callback;
         onAudioComplete = onNPCAudioComplete;
@@ -146,6 +148,38 @@ public class ChoiceUIController : MonoBehaviour
         }
     }
     
+    public void SetChoiceAudioAndCallbacks(AudioClip choiceAAudio, AudioClip choiceBAudio)
+    {
+        // Unregister old callbacks first
+        UnregisterChoiceCallbacks();
+        
+        Debug.Log($"Setting choice callbacks - A: {(choiceAAudio != null ? choiceAAudio.name : "NULL")}, B: {(choiceBAudio != null ? choiceBAudio.name : "NULL")}");
+        
+        // Create new actions with the correct audio
+        currentChoiceAAction = () => OnChoiceClicked(choiceA, choiceB, choiceAText.text, choiceAAudio);
+        currentChoiceBAction = () => OnChoiceClicked(choiceB, choiceA, choiceBText.text, choiceBAudio);
+        
+        // Register new callbacks
+        choiceA.clicked += currentChoiceAAction;
+        choiceB.clicked += currentChoiceBAction;
+    }
+    
+    private void UnregisterChoiceCallbacks()
+    {
+        // Remove old callbacks if they exist
+        if (currentChoiceAAction != null)
+        {
+            choiceA.clicked -= currentChoiceAAction;
+            currentChoiceAAction = null;
+        }
+        
+        if (currentChoiceBAction != null)
+        {
+            choiceB.clicked -= currentChoiceBAction;
+            currentChoiceBAction = null;
+        }
+    }
+    
     private IEnumerator ShowChoicesAfterAudio(float audioLength, string optionA, string optionB)
     {
         Debug.Log($"Waiting {audioLength}s for audio to complete");
@@ -173,28 +207,10 @@ public class ChoiceUIController : MonoBehaviour
         }
     }
 
-    private IEnumerator ShowChoicesAfterDelay(float delay)
-    {
-        Debug.Log($"ShowChoicesAfterDelay started, waiting {delay}s, choicesMade = {choicesMade}");
-        yield return new WaitForSeconds(delay);
-        
-        Debug.Log($"After delay, choicesMade = {choicesMade}");
-        
-        if (!choicesMade)
-        {
-            Debug.Log("Showing choices container");
-            choicesContainer.style.display = DisplayStyle.Flex;
-            choicesContainer.style.opacity = 0;
-            StartCoroutine(FadeIn(choicesContainer, 0.3f));
-        }
-        else
-        {
-            Debug.Log("NOT showing choices - choicesMade is true");
-        }
-    }
-
     private void OnChoiceClicked(Button selected, Button other, string selectedText, AudioClip choiceAudio)
     {
+        Debug.Log($"=== OnChoiceClicked - Text: {selectedText}, Audio: {(choiceAudio != null ? choiceAudio.name : "NULL")} ===");
+        
         if (choicesMade)
         {
             Debug.Log("Choice already made, ignoring click");
@@ -234,25 +250,6 @@ public class ChoiceUIController : MonoBehaviour
         onChoiceSelected?.Invoke(selectedText);
     }
 
-    private IEnumerator HideSelectedAfterDelay(Button selected, string selectedText, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        
-        // Fade out selected choice
-        StartCoroutine(FadeOutAndHide(selected, 0.3f));
-        
-        // Fade out NPC bubble
-        StartCoroutine(FadeOutAndHide(npcBubble, 0.3f));
-        
-        // After fading, hide the choices container
-        yield return new WaitForSeconds(0.3f);
-        choicesContainer.style.display = DisplayStyle.None;
-        
-        // Call the callback with the selected choice
-        Debug.Log($"Calling callback with choice: {selectedText}");
-        onChoiceSelected?.Invoke(selectedText);
-    }
-
     private IEnumerator FadeIn(VisualElement element, float duration)
     {
         float elapsed = 0f;
@@ -266,17 +263,6 @@ public class ChoiceUIController : MonoBehaviour
         }
         
         element.style.opacity = 1f;
-    }
-    
-    public void SetChoiceAudioAndCallbacks(AudioClip choiceAAudio, AudioClip choiceBAudio)
-    {
-        // Clear old callbacks
-        choiceA.clicked -= null;
-        choiceB.clicked -= null;
-    
-        // Register new callbacks with audio
-        choiceA.clicked += () => OnChoiceClicked(choiceA, choiceB, choiceAText.text, choiceAAudio);
-        choiceB.clicked += () => OnChoiceClicked(choiceB, choiceA, choiceBText.text, choiceBAudio);
     }
 
     private IEnumerator FadeOutAndHide(VisualElement element, float duration)
@@ -301,7 +287,10 @@ public class ChoiceUIController : MonoBehaviour
         Debug.Log("HideAll called");
         if (npcBubble != null) npcBubble.style.display = DisplayStyle.None;
         if (choicesContainer != null) choicesContainer.style.display = DisplayStyle.None;
-        choicesMade = false; // Reset flag when hiding
-        targetNPC = null; // Clear target
+        choicesMade = false;
+        targetNPC = null;
+        
+        // Unregister callbacks when hiding
+        UnregisterChoiceCallbacks();
     }
 }

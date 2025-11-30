@@ -11,16 +11,20 @@ public class MainGameScript : MonoBehaviour
     [SerializeField] private SanitySystem sanitySystem;
     
     [Header("Player Movement")]
-    [SerializeField] private CharacterController characterController; // Assign your XR character controller
-    [SerializeField] private ContinuousMoveProvider moveProvider; // Assign your locomotion provider
+    [SerializeField] private CharacterController characterController;
+    [SerializeField] private ContinuousMoveProvider moveProvider;
+    
+    [Header("Game Flow Audio")]
+    [SerializeField] private AudioClip afterFirstInteractionAudio;
+    [SerializeField] private AudioClip afterSecondInteractionAudio;
+    [SerializeField] private AudioClip secondNotificationAudio;
     
     [Header("Sanity Settings")]
-    [SerializeField] private float sanityDecreaseAmount = 40f; // Decrease by 40 (100 -> 60)
-    [SerializeField] private float sanityDecreaseSpeed = 2f; // How fast it decreases
-    [SerializeField] private float sanityRecoveryDelay = 10f; // Wait 10s before recovering
-    [SerializeField] private float sanityRecoverySpeed = 2f; // How fast it recovers
+    [SerializeField] private float sanityDecreaseSpeed = 2f;
+    [SerializeField] private float sanityRecoverySpeed = 2f;
     
     private bool movementLocked = false;
+    private int interactionCount = 0; // Track which NPC interaction
 
     private void Start()
     {
@@ -60,7 +64,6 @@ public class MainGameScript : MonoBehaviour
             Debug.LogError("SanitySystem not assigned!");
         }
 
-        // Make sure phone is hidden (it should be from TaskPhoneManager.Start())
         Debug.Log("Game started - UIs hidden");
     }
 
@@ -106,11 +109,58 @@ public class MainGameScript : MonoBehaviour
             PerformActionForRejection(newTask);
         }
         
-        // Start sanity decrease and recovery cycle
-        StartCoroutine(SanityDecreaseAndRecover());
+        // Handle different interactions based on count
+        if (interactionCount == 1)
+        {
+            // After FIRST interaction (first phone close)
+            StartCoroutine(HandleFirstInteractionComplete());
+        }
+        else if (interactionCount == 2)
+        {
+            // After SECOND interaction (second phone close)
+            StartCoroutine(HandleSecondInteractionComplete());
+        }
     }
 
-    private IEnumerator SanityDecreaseAndRecover()
+    private IEnumerator HandleFirstInteractionComplete()
+    {
+        Debug.Log("=== FIRST INTERACTION COMPLETE ===");
+        
+        // Play audio for first interaction
+        if (afterFirstInteractionAudio != null && UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.PlayCustomClip(afterFirstInteractionAudio, 0.7f);
+        }
+        
+        // Decrease sanity by 50 (from 100 to 50)
+        yield return StartCoroutine(DecreaseSanityTo(50f));
+        
+        // Wait a bit at low sanity
+        yield return new WaitForSeconds(2f);
+        
+        // Restore sanity back to 100
+        yield return StartCoroutine(RestoreSanityToMax());
+        
+        Debug.Log("First interaction sanity cycle complete");
+    }
+
+    private IEnumerator HandleSecondInteractionComplete()
+    {
+        Debug.Log("=== SECOND INTERACTION COMPLETE ===");
+        
+        // Play audio right after second interaction ends
+        if (afterSecondInteractionAudio != null && UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.PlayCustomClip(afterSecondInteractionAudio, 0.7f);
+        }
+        
+        // Decrease sanity by 30 (from 100 to 70)
+        yield return StartCoroutine(DecreaseSanityTo(70f));
+        
+        Debug.Log("Second interaction sanity decrease complete");
+    }
+
+    private IEnumerator DecreaseSanityTo(float targetSanity)
     {
         if (sanitySystem == null)
         {
@@ -118,11 +168,7 @@ public class MainGameScript : MonoBehaviour
             yield break;
         }
 
-        Debug.Log("Starting sanity decrease...");
-        
-        // Calculate target sanity
-        float targetSanity = sanitySystem.currentSanity - sanityDecreaseAmount;
-        targetSanity = Mathf.Max(targetSanity, 0f); // Don't go below 0
+        Debug.Log($"Decreasing sanity from {sanitySystem.currentSanity} to {targetSanity}");
         
         // Gradually decrease sanity
         while (sanitySystem.currentSanity > targetSanity)
@@ -131,23 +177,31 @@ public class MainGameScript : MonoBehaviour
             yield return null;
         }
         
+        // Ensure exact value
+        sanitySystem.SetSanity(targetSanity);
         Debug.Log($"Sanity decreased to {sanitySystem.currentSanity}");
+    }
+
+    private IEnumerator RestoreSanityToMax()
+    {
+        if (sanitySystem == null)
+        {
+            Debug.LogError("Cannot modify sanity - SanitySystem not assigned!");
+            yield break;
+        }
+
+        Debug.Log($"Restoring sanity from {sanitySystem.currentSanity} to {sanitySystem.maxSanity}");
         
-        // Wait before recovery
-        Debug.Log($"Waiting {sanityRecoveryDelay} seconds before recovery...");
-        yield return new WaitForSeconds(sanityRecoveryDelay);
-        
-        // Gradually recover sanity to max
-        Debug.Log("Starting sanity recovery...");
+        // Gradually restore sanity
         while (sanitySystem.currentSanity < sanitySystem.maxSanity)
         {
             sanitySystem.ModifySanity(sanityRecoverySpeed * Time.deltaTime);
             yield return null;
         }
         
-        // Ensure we reach exactly max sanity
+        // Ensure exact max value
         sanitySystem.SetSanity(sanitySystem.maxSanity);
-        Debug.Log($"Sanity recovered to {sanitySystem.currentSanity}");
+        Debug.Log($"Sanity restored to {sanitySystem.currentSanity}");
     }
 
     private void PerformActionBasedOnSwap(string acceptedTask, string droppedTask)
@@ -196,6 +250,11 @@ public class MainGameScript : MonoBehaviour
     public void StartNPCConversation(NPCConversationData conversationData, ChoiceUIController dialogueUI)
     {
         Debug.Log("Starting NPC conversation sequence");
+        
+        // Increment interaction count
+        interactionCount++;
+        Debug.Log($"This is interaction #{interactionCount}");
+        
         StartCoroutine(NPCConversationSequence(conversationData, dialogueUI));
     }
 
@@ -207,17 +266,14 @@ public class MainGameScript : MonoBehaviour
             string choice = null;
             bool choiceMade = false;
             bool npcAudioComplete = false;
-        
-            // Set choice audio callbacks
-            dialogueUI.SetChoiceAudioAndCallbacks(dialogue.choiceAAudioClip, dialogue.choiceBAudioClip);
-        
-            // Show dialogue with audio
+    
+            // Show dialogue with audio FIRST
             dialogueUI.ShowDialogue(
                 dialogue.npcText,
                 dialogue.choiceA,
                 dialogue.choiceB,
                 dialogue.npcAudioClip,
-                () => { npcAudioComplete = true; }, // Called when NPC audio finishes
+                () => { npcAudioComplete = true; },
                 (selectedChoice) =>
                 {
                     choice = selectedChoice;
@@ -225,17 +281,30 @@ public class MainGameScript : MonoBehaviour
                 }
             );
         
+            // THEN set choice audio callbacks AFTER ShowDialogue
+            dialogueUI.SetChoiceAudioAndCallbacks(dialogue.choiceAAudioClip, dialogue.choiceBAudioClip);
+    
             // Wait for user to make a choice
             yield return new WaitUntil(() => choiceMade);
-        
+    
             // Small buffer before next dialogue
             yield return new WaitForSeconds(0.5f);
         }
-    
+
         // Conversation complete
         LockPlayerMovement(false);
         Debug.Log("Conversation complete - player can move again");
-    
+
+        // Play audio for second notification ONLY on second interaction
+        if (interactionCount == 2 && secondNotificationAudio != null)
+        {
+            yield return new WaitForSeconds(0.5f);
+            if (UISoundManager.Instance != null)
+            {
+                UISoundManager.Instance.PlayCustomClip(secondNotificationAudio, 0.7f);
+            }
+        }
+
         // Wait then show notification
         yield return new WaitForSeconds(data.delayBeforeTask);
         ShowNewTaskNotification(data.taskToAssign);

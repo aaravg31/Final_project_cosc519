@@ -92,4 +92,16 @@ public class UISoundManager : MonoBehaviour
             Debug.Log("Playing phone open sound");
         }
     }
+    
+    /// <summary>
+    /// Play a custom one-shot audio clip
+    /// </summary>
+    public void PlayCustomClip(AudioClip clip, float volume = 0.7f)
+    {
+        if (clip != null && uiAudioSource != null)
+        {
+            uiAudioSource.PlayOneShot(clip, volume);
+            Debug.Log($"Playing custom clip: {clip.name}");
+        }
+    }
 }
