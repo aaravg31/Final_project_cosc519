@@ -13,7 +13,14 @@ MonoBehaviour:
   m_Name: NPC2_Conversation
   m_EditorClassIdentifier: Assembly-CSharp::NPCConversationData
   greetingText: Hey!!
+  greetingAudioClip: {fileID: 0}
   greetingDisplayTime: 2
-  dialogueSequence: []
-  taskToAssign: Complete homework
+  dialogueSequence:
+  - npcText: I need you to do your grade!
+    npcAudioClip: {fileID: 0}
+    choiceA: Overcomittment
+    choiceAAudioClip: {fileID: 0}
+    choiceB: High Overwhelm
+    choiceBAudioClip: {fileID: 0}
+  taskToAssign: Grade Assingments
   delayBeforeTask: 2.5

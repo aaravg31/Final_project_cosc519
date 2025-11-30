@@ -98,29 +98,36 @@ public class NPCInteraction : MonoBehaviour
             Debug.LogError("No conversation data assigned to NPC!");
             return;
         }
-        
+    
         hasGreeted = true;
         conversationActive = true;
-        
+    
         if (interactionPrompt != null)
         {
             interactionPrompt.SetActive(false);
         }
-        
+    
         // Set dialogue UI to position near this NPC
         dialogueUI.SetTargetNPC(transform);
-        
+    
         // Lock player movement
         if (gameManager != null)
         {
             gameManager.LockPlayerMovement(true);
         }
-        
+    
+        // Play greeting audio and get duration
+        float greetingDuration = conversationData.greetingDisplayTime;
+        if (conversationData.greetingAudioClip != null)
+        {
+            greetingDuration = DialogueSoundManager.Instance.PlayDialogueClip(conversationData.greetingAudioClip);
+        }
+    
         // Show greeting (no choices)
-        dialogueUI.ShowDialogue(conversationData.greetingText, "", "", null);
-        
-        // Start main conversation after greeting
-        Invoke("StartMainConversation", conversationData.greetingDisplayTime);
+        dialogueUI.ShowDialogue(conversationData.greetingText, "", "", conversationData.greetingAudioClip, null, null);
+    
+        // Start main conversation after greeting audio
+        Invoke("StartMainConversation", greetingDuration);
     }
 
     private void StartMainConversation()

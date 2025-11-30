@@ -26,13 +26,16 @@ public class TaskPhoneManager : MonoBehaviour
         _root = phoneUI.rootVisualElement;
         _taskGrid = _root.Q<VisualElement>("TaskGrid");
         _newTaskGrid = _root.Q<VisualElement>("NewTaskGrid");
-        
-        // Hide phone initially
+    
+        // Hide phone initially (CSS only)
         _root.style.display = DisplayStyle.None;
-        
+    
+        // DON'T disable GameObject - remove this line if you have it:
+        // gameObject.SetActive(false); 
+    
         // Register all existing task boxes
         RegisterAllTaskBoxes();
-        
+    
         // Register exit button
         var exitButton = _root.Q<Button>("exit-button");
         if (exitButton != null)
@@ -40,21 +43,20 @@ public class TaskPhoneManager : MonoBehaviour
             exitButton.clicked += ClosePhone;
             Debug.Log("Exit button registered");
         }
-        else
-        {
-            Debug.LogWarning("Exit button not found!");
-        }
     }
 
     // Call this to show phone with a specific new task
     public void ShowPhoneWithTask(string taskText)
     {
+        // DON'T enable GameObject - remove this line if you have it:
+        // gameObject.SetActive(true);
+    
         _currentNewTask = taskText;
         _swappedOutTask = null; // Reset
-        
+    
         _root.style.display = DisplayStyle.Flex;
         AddNewTask(taskText);
-        
+    
         Debug.Log($"Phone opened with task: {taskText}");
     }
 
@@ -75,25 +77,25 @@ public class TaskPhoneManager : MonoBehaviour
 
     private void ClosePhone()
     {
-        // Hide phone
+        // Hide phone (CSS only)
         _root.style.display = DisplayStyle.None;
-        
+
         // Clear selection
         ClearSelection();
-        
+
         // Check what's in NewTaskSlot1 before clearing
         var newTaskSlot = _root.Q<VisualElement>("NewTaskSlot1");
         if (newTaskSlot != null)
         {
             var label = newTaskSlot.Q<Label>();
             string remainingTask = label != null ? label.text : null;
-            
+
             newTaskSlot.Clear();
             Debug.Log($"Cleared NewTaskSlot1. Remaining task was: {remainingTask}");
-            
-            // Invoke callback with results
+
+            // Invoke callback with results - THIS WAS MISSING!
             OnPhoneClosed?.Invoke(_currentNewTask, _swappedOutTask);
-            
+
             Debug.Log($"Phone closed - New task: {_currentNewTask}, Swapped out: {(_swappedOutTask ?? "none")}");
         }
     }

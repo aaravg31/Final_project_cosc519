@@ -8,8 +8,13 @@ public class NPCConversationData : ScriptableObject
     {
         [TextArea(2, 4)]
         public string npcText;
+        public AudioClip npcAudioClip; // Audio for NPC dialogue
+        
         public string choiceA;
+        public AudioClip choiceAAudioClip; // Audio when choice A is selected
+        
         public string choiceB;
+        public AudioClip choiceBAudioClip; // Audio when choice B is selected
         
         [Header("Next Nodes (Optional - for branching)")]
         public DialogueNode nextIfChoiceA;
@@ -18,6 +23,7 @@ public class NPCConversationData : ScriptableObject
     
     [Header("Initial Greeting")]
     public string greetingText = "Hey!!";
+    public AudioClip greetingAudioClip;
     public float greetingDisplayTime = 2f;
     
     [Header("Conversation Flow")]

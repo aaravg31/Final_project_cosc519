@@ -25,11 +25,13 @@ public class ChoiceUIController : MonoBehaviour
     private Action<string> onChoiceSelected;
     private Coroutine currentDialogueCoroutine;
     private Transform mainCamera;
+    
+    private System.Action onAudioComplete;
 
     private void Start()
     {
         root = uiDocument.rootVisualElement;
-        
+    
         // Get references to UI elements
         npcBubble = root.Q<VisualElement>("npc-bubble");
         npcText = root.Q<Label>("npc-text");
@@ -38,16 +40,14 @@ public class ChoiceUIController : MonoBehaviour
         choiceB = root.Q<Button>("choice-b");
         choiceAText = root.Q<Label>("choice-a-text");
         choiceBText = root.Q<Label>("choice-b-text");
-        
+    
         // Find main camera
         mainCamera = Camera.main.transform;
-        
+    
         // Hide everything initially
         HideAll();
-        
-        // Register button callbacks
-        choiceA.clicked += () => OnChoiceClicked(choiceA, choiceB, choiceAText.text);
-        choiceB.clicked += () => OnChoiceClicked(choiceB, choiceA, choiceBText.text);
+    
+        // NOTE: We'll register callbacks dynamically when showing dialogue
     }
 
     private void LateUpdate()
@@ -86,7 +86,7 @@ public class ChoiceUIController : MonoBehaviour
     }
 
     // Call this to show dialogue with choices
-    public void ShowDialogue(string npcDialogue, string optionA, string optionB, Action<string> callback = null)
+    public void ShowDialogue(string npcDialogue, string optionA, string optionB, AudioClip npcAudio, System.Action onNPCAudioComplete, Action<string> callback = null)
     {
         // Stop any running dialogue coroutines
         if (currentDialogueCoroutine != null)
@@ -97,40 +97,79 @@ public class ChoiceUIController : MonoBehaviour
         // IMPORTANT: Reset the flag for new dialogue
         choicesMade = false;
         onChoiceSelected = callback;
-        
+        onAudioComplete = onNPCAudioComplete;
+    
         Debug.Log($"ShowDialogue called - choicesMade reset to false");
-        
+    
         // Set text
         npcText.text = npcDialogue;
         choiceAText.text = optionA;
         choiceBText.text = optionB;
-        
+    
         // Reset button states
         choiceA.style.display = DisplayStyle.Flex;
         choiceB.style.display = DisplayStyle.Flex;
         choiceA.style.opacity = 1;
         choiceB.style.opacity = 1;
-        
+    
         // Show NPC bubble immediately
         npcBubble.style.display = DisplayStyle.Flex;
         npcBubble.style.opacity = 0;
-        
+    
         // Hide choices initially
         choicesContainer.style.display = DisplayStyle.None;
-        
+    
         // Position near NPC
         if (targetNPC != null)
         {
             PositionNearNPC();
         }
-        
+    
         // Fade in NPC bubble
         StartCoroutine(FadeIn(npcBubble, 0.3f));
+    
+        // Play audio and wait for it to finish before showing choices
+        if (npcAudio != null || (!string.IsNullOrEmpty(optionA) && !string.IsNullOrEmpty(optionB)))
+        {
+            float audioLength = 0f;
         
-        // Show choices after 2 seconds (or immediately if no options)
+            if (npcAudio != null)
+            {
+                audioLength = DialogueSoundManager.Instance.PlayDialogueClip(npcAudio);
+            }
+            else
+            {
+                audioLength = DialogueSoundManager.Instance.defaultWaitTime;
+            }
+        
+            currentDialogueCoroutine = StartCoroutine(ShowChoicesAfterAudio(audioLength, optionA, optionB));
+        }
+    }
+    
+    private IEnumerator ShowChoicesAfterAudio(float audioLength, string optionA, string optionB)
+    {
+        Debug.Log($"Waiting {audioLength}s for audio to complete");
+        yield return new WaitForSeconds(audioLength);
+    
+        // Notify that NPC audio is complete
+        onAudioComplete?.Invoke();
+    
+        // Only show choices if there are actual choices to make
         if (!string.IsNullOrEmpty(optionA) && !string.IsNullOrEmpty(optionB))
         {
-            currentDialogueCoroutine = StartCoroutine(ShowChoicesAfterDelay(2f));
+            Debug.Log("Audio complete, showing choices");
+            if (!choicesMade)
+            {
+                choicesContainer.style.display = DisplayStyle.Flex;
+                choicesContainer.style.opacity = 0;
+                StartCoroutine(FadeIn(choicesContainer, 0.3f));
+            }
+        }
+        else
+        {
+            // No choices, just wait and clear
+            yield return new WaitForSeconds(0.5f);
+            HideAll();
         }
     }
 
@@ -154,23 +193,45 @@ public class ChoiceUIController : MonoBehaviour
         }
     }
 
-    private void OnChoiceClicked(Button selected, Button other, string selectedText)
+    private void OnChoiceClicked(Button selected, Button other, string selectedText, AudioClip choiceAudio)
     {
         if (choicesMade)
         {
             Debug.Log("Choice already made, ignoring click");
             return;
         }
-        
+    
         choicesMade = true;
-        
-        Debug.Log($"Choice selected: {selectedText}, setting choicesMade = true");
-        
-        // Fade out and hide the other choice
+    
+        Debug.Log($"Choice selected: {selectedText}");
+    
+        // Fade out the other choice immediately
         StartCoroutine(FadeOutAndHide(other, 0.3f));
-        
-        // Keep selected choice visible for 2 seconds, then hide everything
-        StartCoroutine(HideSelectedAfterDelay(selected, selectedText, 2f));
+    
+        // Play choice audio and wait for it
+        float audioLength = DialogueSoundManager.Instance.PlayDialogueClip(choiceAudio);
+    
+        // Keep selected choice visible during audio, then hide
+        StartCoroutine(HideSelectedAfterAudio(selected, selectedText, audioLength));
+    }
+    
+    private IEnumerator HideSelectedAfterAudio(Button selected, string selectedText, float audioLength)
+    {
+        yield return new WaitForSeconds(audioLength);
+    
+        // Fade out selected choice
+        StartCoroutine(FadeOutAndHide(selected, 0.3f));
+    
+        // Fade out NPC bubble
+        StartCoroutine(FadeOutAndHide(npcBubble, 0.3f));
+    
+        // After fading, hide the choices container
+        yield return new WaitForSeconds(0.3f);
+        choicesContainer.style.display = DisplayStyle.None;
+    
+        // Call the callback with the selected choice
+        Debug.Log($"Calling callback with choice: {selectedText}");
+        onChoiceSelected?.Invoke(selectedText);
     }
 
     private IEnumerator HideSelectedAfterDelay(Button selected, string selectedText, float delay)
@@ -205,6 +266,17 @@ public class ChoiceUIController : MonoBehaviour
         }
         
         element.style.opacity = 1f;
+    }
+    
+    public void SetChoiceAudioAndCallbacks(AudioClip choiceAAudio, AudioClip choiceBAudio)
+    {
+        // Clear old callbacks
+        choiceA.clicked -= null;
+        choiceB.clicked -= null;
+    
+        // Register new callbacks with audio
+        choiceA.clicked += () => OnChoiceClicked(choiceA, choiceB, choiceAText.text, choiceAAudio);
+        choiceB.clicked += () => OnChoiceClicked(choiceB, choiceA, choiceBText.text, choiceBAudio);
     }
 
     private IEnumerator FadeOutAndHide(VisualElement element, float duration)

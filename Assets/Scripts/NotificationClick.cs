@@ -5,13 +5,40 @@ public class NotificationClick : MonoBehaviour
 {
     private string taskToAdd = "Task 5"; // Default task
     private VRUIPositioner uiPositioner;
+    private UIDocument uiDocument;
+    private bool buttonRegistered = false;
 
     void Start()
     {
-        // Get the positioner component
+        uiDocument = GetComponent<UIDocument>();
         uiPositioner = GetComponent<VRUIPositioner>();
+    }
+
+    void OnEnable()
+    {
+        // Register button every time notification is shown
+        RegisterButton();
         
-        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
+        // Reposition when notification appears
+        if (uiPositioner != null)
+        {
+            uiPositioner.ForceReposition();
+        }
+    }
+
+    private void RegisterButton()
+    {
+        if (uiDocument == null)
+        {
+            uiDocument = GetComponent<UIDocument>();
+            if (uiDocument == null)
+            {
+                Debug.LogError("UIDocument not found!");
+                return;
+            }
+        }
+
+        VisualElement root = uiDocument.rootVisualElement;
         Button button1 = root.Q<Button>("notification-button");
 
         if (button1 == null)
@@ -20,30 +47,27 @@ public class NotificationClick : MonoBehaviour
             return;
         }
 
-        Debug.Log("Notification button found and registered");
-
-        button1.clicked += () =>
-        {
-            Debug.Log($"Notification button clicked! Task: {taskToAdd}");
-            var phoneManager = FindFirstObjectByType<TaskPhoneManager>();
-            if (phoneManager != null)
-            {
-                phoneManager.ShowPhoneWithTask(taskToAdd);
-                gameObject.SetActive(false);
-            }
-            else
-            {
-                Debug.LogError("TaskPhoneManager not found!");
-            }
-        };
+        // Clear any existing callbacks to avoid duplicates
+        button1.clicked -= OnButtonClicked;
+        
+        // Register the callback
+        button1.clicked += OnButtonClicked;
+        
+        Debug.Log("Notification button registered");
     }
 
-    void OnEnable()
+    private void OnButtonClicked()
     {
-        // Reposition when notification appears
-        if (uiPositioner != null)
+        Debug.Log($"Notification button clicked! Task: {taskToAdd}");
+        var phoneManager = FindFirstObjectByType<TaskPhoneManager>();
+        if (phoneManager != null)
         {
-            uiPositioner.ForceReposition();
+            phoneManager.ShowPhoneWithTask(taskToAdd);
+            gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("TaskPhoneManager not found!");
         }
     }
 
