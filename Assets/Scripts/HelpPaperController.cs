@@ -10,13 +10,17 @@ public class HelpPaperController : MonoBehaviour
     public Vector3 displayOffset = new Vector3(0f, 0f, 1.5f);
     public Vector3 displayScale = new Vector3(5f, 1f, 5f);
     public float moveSpeed = 2f;
+    public float tiltAngle = 25f; // Tilt the paper back
     
     private bool hasBeenRead = false;
     private bool isDisplayed = false;
+    private bool isVisible = false;
     private Transform playerCamera;
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private Vector3 originalScale;
+    private Renderer paperRenderer;
+    private Collider paperCollider;
 
     void Start()
     {
@@ -25,6 +29,13 @@ public class HelpPaperController : MonoBehaviour
         originalPosition = transform.position;
         originalRotation = transform.rotation;
         originalScale = transform.localScale;
+        
+        // Get renderer and collider
+        paperRenderer = GetComponent<Renderer>();
+        paperCollider = GetComponent<Collider>();
+        
+        // Hide paper initially
+        HidePaper();
     }
 
     void Update()
@@ -40,25 +51,64 @@ public class HelpPaperController : MonoBehaviour
     {
         // Calculate target position in front of camera
         Vector3 targetPosition = playerCamera.position + 
-                                 playerCamera.forward * displayOffset.z + 
-                                 playerCamera.right * displayOffset.x + 
-                                 playerCamera.up * displayOffset.y;
-    
+                                playerCamera.forward * displayOffset.z + 
+                                playerCamera.right * displayOffset.x + 
+                                playerCamera.up * displayOffset.y;
+        
         // Smoothly move to target
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed);
-    
-        // Face the camera with 90 degree tilt
+        
+        // Face the camera with tilt
         Vector3 directionToCamera = playerCamera.position - transform.position;
         Quaternion targetRotation = Quaternion.LookRotation(directionToCamera);
-        targetRotation *= Quaternion.Euler(90f, 0f, 0f); // Keep it vertical
-    
+        targetRotation *= Quaternion.Euler(90f - tiltAngle, 0f, 0f); // Apply tilt
+        
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * moveSpeed);
+    }
+
+    // Called by MainGameScript when paper should appear
+    public void ShowPaperInWorld()
+    {
+        isVisible = true;
+        
+        if (paperRenderer != null)
+        {
+            paperRenderer.enabled = true;
+        }
+        
+        if (paperCollider != null)
+        {
+            paperCollider.enabled = true;
+        }
+        
+        Debug.Log("Help paper is now visible in the world");
+    }
+
+    private void HidePaper()
+    {
+        isVisible = false;
+        
+        if (paperRenderer != null)
+        {
+            paperRenderer.enabled = false;
+        }
+        
+        if (paperCollider != null)
+        {
+            paperCollider.enabled = false;
+        }
     }
 
     // Called by XR Simple Interactable
     public void OnPaperInteracted()
     {
         Debug.Log("=== HELP PAPER CLICKED ===");
+        
+        if (!isVisible)
+        {
+            Debug.Log("Paper not visible yet");
+            return;
+        }
         
         if (isDisplayed)
         {
@@ -69,23 +119,21 @@ public class HelpPaperController : MonoBehaviour
         Debug.Log("Showing paper in front of camera");
         ShowPaper();
         
-        // Only play audio on first interaction
-        /*
+        // Trigger sanity restoration and ending audio
         if (!hasBeenRead)
         {
             hasBeenRead = true;
             
-            Debug.Log("Playing ending audio from paper");
+            Debug.Log("Restoring sanity and playing ending audio");
             if (gameManager != null)
             {
-                gameManager.PlayEndingAudioFromPaper();
+                gameManager.OnHelpPaperRead();
             }
             else
             {
                 Debug.LogError("GameManager not assigned!");
             }
         }
-        */
     }
 
     private void ShowPaper()
@@ -98,36 +146,34 @@ public class HelpPaperController : MonoBehaviour
     {
         float elapsed = 0f;
         float duration = 0.5f;
-    
+        
         Vector3 startPosition = transform.position;
         Quaternion startRotation = transform.rotation;
         Vector3 startScale = transform.localScale;
-    
+        
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
-        
+            
             Vector3 targetPosition = playerCamera.position + 
-                                     playerCamera.forward * displayOffset.z + 
-                                     playerCamera.right * displayOffset.x + 
-                                     playerCamera.up * displayOffset.y;
-        
+                                    playerCamera.forward * displayOffset.z + 
+                                    playerCamera.right * displayOffset.x + 
+                                    playerCamera.up * displayOffset.y;
+            
             transform.position = Vector3.Lerp(startPosition, targetPosition, t);
             transform.localScale = Vector3.Lerp(startScale, displayScale, t);
-        
-            // Face camera directly (perpendicular to view)
+            
+            // Face camera with tilt
             Vector3 directionToCamera = playerCamera.position - transform.position;
             Quaternion targetRotation = Quaternion.LookRotation(directionToCamera);
-        
-            // Add 90 degrees pitch to make it vertical/upright
-            targetRotation *= Quaternion.Euler(90f, 0f, 0f); // Adjust these values
-        
+            targetRotation *= Quaternion.Euler(90f - tiltAngle, 0f, 0f); // Apply tilt
+            
             transform.rotation = Quaternion.Lerp(startRotation, targetRotation, t);
-        
+            
             yield return null;
         }
-    
+        
         Debug.Log("Paper animation complete");
     }
 }

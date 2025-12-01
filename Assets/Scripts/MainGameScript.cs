@@ -185,12 +185,46 @@ public class MainGameScript : MonoBehaviour
     
         Debug.Log("Starting random anxiety audio sequence (20 seconds)");
     
-        // Play random anxiety clips for 20 seconds (10 clips, 2 seconds apart)
+        // Start random anxiety clips (20 seconds total, 2 second intervals)
+        // After 10 seconds, show the help paper
+        StartCoroutine(ShowHelpPaperAfterDelay(10f));
+    
         yield return StartCoroutine(PlayRandomAnxietyClips(20f, 2f));
     
-        Debug.Log("Anxiety sequence complete - restoring sanity");
+        Debug.Log("Anxiety sequence complete - waiting for player to read help paper");
     
+        // DON'T restore sanity or play ending here anymore
+        // Wait for player to click the help paper
+    }
+    
+    private IEnumerator ShowHelpPaperAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+    
+        // Find and show the help paper
+        HelpPaperController helpPaper = FindFirstObjectByType<HelpPaperController>();
+        if (helpPaper != null)
+        {
+            helpPaper.ShowPaperInWorld();
+            Debug.Log("Help paper is now visible to the player");
+        }
+        else
+        {
+            Debug.LogError("HelpPaperController not found in scene!");
+        }
+    }
+
+// NEW METHOD: Called when player reads the help paper
+    public void OnHelpPaperRead()
+    {
+        Debug.Log("Player read help paper - restoring sanity and playing ending");
+        StartCoroutine(HelpPaperReadSequence());
+    }
+
+    private IEnumerator HelpPaperReadSequence()
+    {
         // Restore sanity back to 100
+        Debug.Log("Restoring sanity to 100");
         yield return StartCoroutine(RestoreSanityToMax());
     
         // Fade background back to normal
@@ -206,13 +240,13 @@ public class MainGameScript : MonoBehaviour
         // Lock player for ending
         LockPlayerMovement(true);
     
-        // Play ending audio clips with background muted
+        // Play ending audio clips
         yield return StartCoroutine(PlayEndingSequence());
     
         // Unlock player after ending
         LockPlayerMovement(false);
     
-        Debug.Log("Second interaction complete - Game sequence finished!");
+        Debug.Log("Game sequence complete!");
     }
 
     private IEnumerator PlayRandomAnxietyClips(float totalDuration, float interval)
