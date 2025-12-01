@@ -261,7 +261,7 @@ public class MainGameScript : MonoBehaviour
             
             if (randomClip != null && UISoundManager.Instance != null)
             {
-                UISoundManager.Instance.PlayCustomClip(randomClip, 0.8f);
+                UISoundManager.Instance.PlayCustomClip(randomClip, 0.05f);
                 clipCount++;
                 Debug.Log($"Playing random anxiety clip #{clipCount}: {randomClip.name}");
             }
