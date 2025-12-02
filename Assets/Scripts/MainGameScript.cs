@@ -28,6 +28,7 @@ public class MainGameScript : MonoBehaviour
     [Header("Sanity Settings")]
     [SerializeField] private float sanityDecreaseSpeed = 2f;
     [SerializeField] private float sanityRecoverySpeed = 2f;
+    [SerializeField] private float sanityRecoverySpeedFast = 10f;
     
     private bool movementLocked = false;
     private int interactionCount = 0;
@@ -185,11 +186,11 @@ public class MainGameScript : MonoBehaviour
     
         Debug.Log("Starting random anxiety audio sequence (20 seconds)");
     
-        // Start random anxiety clips (20 seconds total, 2 second intervals)
+        // Start random anxiety clips (20 seconds total, 1 second intervals)
         // After 10 seconds, show the help paper
         StartCoroutine(ShowHelpPaperAfterDelay(10f));
     
-        yield return StartCoroutine(PlayRandomAnxietyClips(20f, 2f));
+        yield return StartCoroutine(PlayRandomAnxietyClips(15f, 1f));
     
         Debug.Log("Anxiety sequence complete - waiting for player to read help paper");
     
@@ -225,7 +226,7 @@ public class MainGameScript : MonoBehaviour
     {
         // Restore sanity back to 100
         Debug.Log("Restoring sanity to 100");
-        yield return StartCoroutine(RestoreSanityToMax());
+        yield return StartCoroutine(RestoreSanityToMax(sanityRecoverySpeedFast));
     
         // Fade background back to normal
         if (UISoundManager.Instance != null)
@@ -331,15 +332,17 @@ public class MainGameScript : MonoBehaviour
         Debug.Log($"Sanity decreased to {sanitySystem.currentSanity}");
     }
 
-    private IEnumerator RestoreSanityToMax()
+    private IEnumerator RestoreSanityToMax(float? customSpeed = null)
     {
         if (sanitySystem == null) yield break;
+        
+        float recoverySpeed = customSpeed ?? sanityRecoverySpeed;
 
         Debug.Log($"Restoring sanity from {sanitySystem.currentSanity} to max");
         
         while (sanitySystem.currentSanity < sanitySystem.maxSanity)
         {
-            sanitySystem.ModifySanity(sanityRecoverySpeed * Time.deltaTime);
+            sanitySystem.ModifySanity(recoverySpeed * Time.deltaTime);
             yield return null;
         }
         

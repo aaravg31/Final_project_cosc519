@@ -13,16 +13,22 @@ public class HelpPaperController : MonoBehaviour
     public float moveSpeed = 2f;
     public float tiltAngle = 25f;
     
+    [Header("Hover Effect")]
+    public Material highlightMaterial;
+    public float hoverScale = 1.1f;
+    
     private bool hasBeenRead = false;
     private bool isDisplayed = false;
     private bool isVisible = false;
+    private bool isHovering = false;
     private Transform playerCamera;
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private Vector3 originalScale;
     private Renderer paperRenderer;
     private Collider paperCollider;
-    private TextMeshPro paperText; // Reference to text component
+    private TextMeshPro paperText;
+    private Material originalMaterial;
 
     void Start()
     {
@@ -36,6 +42,11 @@ public class HelpPaperController : MonoBehaviour
         paperRenderer = GetComponent<Renderer>();
         paperCollider = GetComponent<Collider>();
         paperText = GetComponentInChildren<TextMeshPro>(); // Find text in children
+        
+        if (paperRenderer != null)
+        {
+            originalMaterial = paperRenderer.material;
+        }
         
         // Hide paper initially
         HidePaper();
@@ -107,6 +118,46 @@ public class HelpPaperController : MonoBehaviour
         {
             paperText.enabled = false;
         }
+    }
+    
+    // Called by XR Simple Interactable - Hover Enter
+    public void OnHoverEnter()
+    {
+        if (!isVisible || isDisplayed)
+            return;
+        
+        isHovering = true;
+        
+        // Change material to highlight
+        if (paperRenderer != null && highlightMaterial != null)
+        {
+            paperRenderer.material = highlightMaterial;
+        }
+        
+        // Scale up slightly
+        transform.localScale = originalScale * hoverScale;
+        
+        Debug.Log("Hovering over paper");
+    }
+
+    // Called by XR Simple Interactable - Hover Exit
+    public void OnHoverExit()
+    {
+        if (!isVisible || isDisplayed)
+            return;
+        
+        isHovering = false;
+        
+        // Restore original material
+        if (paperRenderer != null && originalMaterial != null)
+        {
+            paperRenderer.material = originalMaterial;
+        }
+        
+        // Restore original scale
+        transform.localScale = originalScale;
+        
+        Debug.Log("Stopped hovering over paper");
     }
 
     public void OnPaperInteracted()
