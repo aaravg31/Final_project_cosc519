@@ -22,5 +22,5 @@ MonoBehaviour:
     choiceAAudioClip: {fileID: 8300000, guid: f0250b8afd8f04be0a3d9b3922602dbf, type: 3}
     choiceB: Unsure
     choiceBAudioClip: {fileID: 8300000, guid: 837707072975e45519242394e398e245, type: 3}
-  taskToAssign: Meet Friends Tonight
+  taskToAssign: Meet Friends (Tonight)
   delayBeforeTask: 2.5

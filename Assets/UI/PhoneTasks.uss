@@ -50,6 +50,9 @@
     margin: 6px;
     align-items: center;
     justify-content: center;
+    /* NEW: Allow box to expand if needed */
+    flex-shrink: 0;
+    overflow: hidden; /* Keep text inside box */
 }
 
 /* 🧩 Task box hover / interaction effects */
@@ -74,7 +77,19 @@
     -unity-text-align: middle-center;
     align-items: center;
     justify-content: center;
-    margin-top: 25%;
+    /* NEW: Enable text wrapping */
+    white-space: normal;
+    flex-shrink: 1;
+    /* NEW: Add padding so text doesn't touch edges */
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    /* NEW: Remove margin-top since padding handles spacing now */
+    margin-top: 0;
+    /* NEW: Make label take full width of parent */
+    width: 100%;
+    height: 100%;
 }
 
 .new-task-section {
@@ -129,4 +144,3 @@
     border-color: rgba(255, 120, 120, 0.8);
     scale: 1.1 1.1;
 }
-

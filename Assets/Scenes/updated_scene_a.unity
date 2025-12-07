@@ -2294,7 +2294,7 @@ MonoBehaviour:
   isFirstNPC: 1
   interactionRadius: 3
   requireClick: 1
-  interactionRing: {fileID: 0}
+  interactionRing: {fileID: 730306243}
   interactionPrompt: {fileID: 0}
   lockedPrompt: {fileID: 0}
 --- !u!4 &730306242 stripped
@@ -2452,7 +2452,7 @@ MonoBehaviour:
   isFirstNPC: 0
   interactionRadius: 3
   requireClick: 1
-  interactionRing: {fileID: 0}
+  interactionRing: {fileID: 764170865}
   interactionPrompt: {fileID: 0}
   lockedPrompt: {fileID: 0}
 --- !u!4 &764170864 stripped
@@ -5841,7 +5841,7 @@ MonoBehaviour:
   isFirstNPC: 0
   interactionRadius: 3
   requireClick: 1
-  interactionRing: {fileID: 0}
+  interactionRing: {fileID: 2146008756}
   interactionPrompt: {fileID: 0}
   lockedPrompt: {fileID: 0}
 --- !u!114 &2146008751
@@ -5990,10 +5990,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5049750771086048639, guid: 0fbbdfbafb7ea4cb185b6da2202828db, type: 3}
       propertyPath: m_text
-      value: "\n\nUBCO Counselling Services: Monday to Friday 9am -4pm \nCall: (250)
-        807 9270\n   \nUBCO Psychology Clinic\n\n24/7 Counselling Services:\n1. 
-        HERE2TALK : 1 877 857 3397\n2. CRISIS CENTRE BC:  604 310 6789\n\nMore Info:
-        https://students.ok.ubc.ca/health-wellness/counselling-mental-health/"
+      value: "\n\nUBCO Counselling Services: Monday to Friday 9am -4pm \nCall: +1
+        (250) 807 9270\n   \nUBCO Psychology Clinic\n\n24/7 Counselling Services:\n1. 
+        HERE2TALK : +1 (877) 857 3397\n2. CRISIS CENTRE BC: +1 (604) 310 6789\n\nMore
+        Info: https://students.ok.ubc.ca/health-wellness/counselling-mental-health/"
       objectReference: {fileID: 0}
     - target: {fileID: 6068234659374155294, guid: 0fbbdfbafb7ea4cb185b6da2202828db, type: 3}
       propertyPath: m_HoverExited.m_PersistentCalls.m_Calls.Array.size

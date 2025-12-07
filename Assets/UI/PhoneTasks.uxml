@@ -7,16 +7,16 @@
         </ui:VisualElement>
         <ui:VisualElement name="TaskGrid" class="task-grid" style="flex-grow: 1;">
             <ui:VisualElement name="TaskSlot1" class="task-box" style="flex-grow: 1;">
-                <ui:Label text="Meet Friends" name="Task1" class="task-label" />
+                <ui:Label name="Task1" emoji-fallback-support="true" class="task-label" />
             </ui:VisualElement>
             <ui:VisualElement name="TaskSlot2" class="task-box" style="flex-grow: 1;">
-                <ui:Label text="IMTC 505 Assignment" name="Task2" class="task-label" />
+                <ui:Label text="IMTC 505 Assignment (Due Tomorrow)" name="Task2" class="task-label" />
             </ui:VisualElement>
             <ui:VisualElement name="TaskSlot3" class="task-box" style="flex-grow: 1;">
-                <ui:Label text="COSC 520 Project" name="Task3" class="task-label" style="align-content: flex-start; align-self: flex-start; width: 154px; height: 24px; align-items: center;" />
+                <ui:Label text="COSC 520 Project (Due in 2 days)" name="Task3" emoji-fallback-support="false" class="task-label" style="align-content: flex-start; align-self: flex-start; width: 154px; height: 24px; align-items: center;" />
             </ui:VisualElement>
             <ui:VisualElement name="TaskSlot4" class="task-box" style="flex-grow: 1;">
-                <ui:Label text="Seminar Presentation" name="Task4" selectable="true" focusable="true" emoji-fallback-support="false" class="task-label" />
+                <ui:Label text="Seminar Presentation (Due Tomorrow)" name="Task4" selectable="true" focusable="true" emoji-fallback-support="false" class="task-label" />
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="NewTaskSection" class="new-task-section" style="flex-grow: 1;">
