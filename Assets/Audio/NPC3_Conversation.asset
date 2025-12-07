@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8d0a20639b124258b7ef18a8f94a585, type: 3}
+  m_Name: NPC3_Conversation
+  m_EditorClassIdentifier: Assembly-CSharp::NPCConversationData
+  greetingText: Oh Hey!
+  greetingAudioClip: {fileID: 0}
+  greetingDisplayTime: 1
+  dialogueSequence:
+  - npcText: I was just looking for you
+    npcAudioClip: {fileID: 8300000, guid: 8fbf26b83a74a408c8d3205738e732ac, type: 3}
+    choiceA: Excited
+    choiceAAudioClip: {fileID: 8300000, guid: f0250b8afd8f04be0a3d9b3922602dbf, type: 3}
+    choiceB: Unsure
+    choiceBAudioClip: {fileID: 8300000, guid: 837707072975e45519242394e398e245, type: 3}
+  taskToAssign: Meet Friends Tonight
+  delayBeforeTask: 2.5

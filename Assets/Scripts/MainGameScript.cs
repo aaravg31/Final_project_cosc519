@@ -17,7 +17,9 @@ public class MainGameScript : MonoBehaviour
     [Header("Game Flow Audio")]
     [SerializeField] private AudioClip afterFirstInteractionAudio;
     [SerializeField] private AudioClip afterSecondInteractionAudio;
+    [SerializeField] private AudioClip afterThirdInteractionAudio; // NEW: Audio after 3rd interaction
     [SerializeField] private AudioClip secondNotificationAudio;
+    [SerializeField] private AudioClip thirdNotificationAudio; // NEW: Audio for 3rd notification
     
     [Header("Random Anxiety Audio (1 second clips)")]
     [SerializeField] private AudioClip anxietyClip1;
@@ -32,6 +34,7 @@ public class MainGameScript : MonoBehaviour
     
     private bool movementLocked = false;
     private int interactionCount = 0;
+    private bool firstNPCInteracted = false; // NEW: Track if mandatory first NPC was interacted with
     private AudioClip[] anxietyClips;
 
     private void Start()
@@ -121,6 +124,7 @@ public class MainGameScript : MonoBehaviour
             PerformActionForRejection(newTask);
         }
         
+        // NEW: Handle all three interactions
         if (interactionCount == 1)
         {
             StartCoroutine(HandleFirstInteractionComplete());
@@ -129,16 +133,36 @@ public class MainGameScript : MonoBehaviour
         {
             StartCoroutine(HandleSecondInteractionComplete());
         }
+        else if (interactionCount == 3)
+        {
+            StartCoroutine(HandleThirdInteractionComplete());
+        }
     }
 
     private IEnumerator HandleFirstInteractionComplete()
     {
-        Debug.Log("=== FIRST INTERACTION COMPLETE ===");
+        Debug.Log("=== FIRST INTERACTION COMPLETE (Guaranteed NPC) ===");
         
         // Play audio
         if (afterFirstInteractionAudio != null && UISoundManager.Instance != null)
         {
             UISoundManager.Instance.PlayCustomClip(afterFirstInteractionAudio, 0.7f);
+        }
+        
+        // Wait at low sanity
+        yield return new WaitForSeconds(1f);
+        
+        Debug.Log("First interaction complete - Player can now choose between other NPCs");
+    }
+
+    private IEnumerator HandleSecondInteractionComplete()
+    {
+        Debug.Log("=== SECOND INTERACTION COMPLETE (One of the two optional NPCs) ===");
+        
+        // Play audio
+        if (afterSecondInteractionAudio != null && UISoundManager.Instance != null)
+        {
+            UISoundManager.Instance.PlayCustomClip(afterSecondInteractionAudio, 0.7f);
         }
         
         // Fade background music to anxious level
@@ -147,7 +171,7 @@ public class MainGameScript : MonoBehaviour
             UISoundManager.Instance.FadeBackgroundToAnxious(1f);
         }
         
-        // Decrease sanity by 50
+        // Decrease sanity by 50 again
         yield return StartCoroutine(DecreaseSanityTo(50f));
         
         // Wait at low sanity
@@ -162,17 +186,17 @@ public class MainGameScript : MonoBehaviour
             UISoundManager.Instance.FadeBackgroundToNormal(2f);
         }
         
-        Debug.Log("First interaction complete");
+        Debug.Log("Second interaction complete - One more NPC to go");
     }
 
-    private IEnumerator HandleSecondInteractionComplete()
+    private IEnumerator HandleThirdInteractionComplete()
     {
-        Debug.Log("=== SECOND INTERACTION COMPLETE ===");
+        Debug.Log("=== THIRD INTERACTION COMPLETE (Final NPC) ===");
     
         // Play audio
-        if (afterSecondInteractionAudio != null && UISoundManager.Instance != null)
+        if (afterThirdInteractionAudio != null && UISoundManager.Instance != null)
         {
-            UISoundManager.Instance.PlayCustomClip(afterSecondInteractionAudio, 0.7f);
+            UISoundManager.Instance.PlayCustomClip(afterThirdInteractionAudio, 0.7f);
         }
     
         // Fade background music to anxious level
@@ -215,7 +239,7 @@ public class MainGameScript : MonoBehaviour
         }
     }
 
-// NEW METHOD: Called when player reads the help paper
+    // NEW METHOD: Called when player reads the help paper
     public void OnHelpPaperRead()
     {
         Debug.Log("Player read help paper - restoring sanity and playing ending");
@@ -372,14 +396,29 @@ public class MainGameScript : MonoBehaviour
         Debug.Log($"Player movement {(lockMovement ? "LOCKED" : "UNLOCKED")}");
     }
 
-    public void StartNPCConversation(NPCConversationData conversationData, ChoiceUIController dialogueUI)
+    // MODIFIED: Added isFirstNPC parameter
+    public void StartNPCConversation(NPCConversationData conversationData, ChoiceUIController dialogueUI, bool isFirstNPC = false)
     {
-        Debug.Log("Starting NPC conversation sequence");
+        Debug.Log($"Starting NPC conversation sequence - Is First NPC: {isFirstNPC}");
         
         interactionCount++;
+        
+        // Mark first NPC as interacted
+        if (isFirstNPC)
+        {
+            firstNPCInteracted = true;
+            Debug.Log("First (mandatory) NPC interaction started");
+        }
+        
         Debug.Log($"Interaction #{interactionCount}");
         
         StartCoroutine(NPCConversationSequence(conversationData, dialogueUI));
+    }
+
+    // NEW: Check if player can interact with optional NPCs
+    public bool CanInteractWithOptionalNPC()
+    {
+        return firstNPCInteracted;
     }
 
     private IEnumerator NPCConversationSequence(NPCConversationData data, ChoiceUIController dialogueUI)
@@ -412,12 +451,21 @@ public class MainGameScript : MonoBehaviour
         LockPlayerMovement(false);
         Debug.Log("Conversation complete - player can move");
     
+        // NEW: Play appropriate notification audio based on interaction count
         if (interactionCount == 2 && secondNotificationAudio != null)
         {
             yield return new WaitForSeconds(0.5f);
             if (UISoundManager.Instance != null)
             {
                 UISoundManager.Instance.PlayCustomClip(secondNotificationAudio, 0.7f);
+            }
+        }
+        else if (interactionCount == 3 && thirdNotificationAudio != null)
+        {
+            yield return new WaitForSeconds(0.5f);
+            if (UISoundManager.Instance != null)
+            {
+                UISoundManager.Instance.PlayCustomClip(thirdNotificationAudio, 0.7f);
             }
         }
     
