@@ -6160,7 +6160,11 @@ MonoBehaviour:
   displayScale: {x: 0.25, y: 1, z: 0.25}
   moveSpeed: 2
   tiltAngle: 25
-  highlightMaterial: {fileID: 2100000, guid: 1f82520bbfdfc4e6990c6ff7bc656d1b, type: 2}
+  glowMaterial: {fileID: 2100000, guid: f09883929762143bd8794ceb51b041a1, type: 2}
+  pulseSpeed: 2
+  pulseAmount: 0.15
+  emissionIntensity: 2
+  highlightMaterial: {fileID: 2100000, guid: f09883929762143bd8794ceb51b041a1, type: 2}
   hoverScale: 1.1
 --- !u!65 &4599163929231301439
 BoxCollider:

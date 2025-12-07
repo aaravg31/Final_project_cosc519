@@ -45,6 +45,14 @@ public class NPCInteraction : MonoBehaviour
         if (interactionRing == null)
         {
             interactionRing = GetComponent<InteractionRingController>();
+            if (interactionRing != null)
+            {
+                Debug.Log($"[{gameObject.name}] Auto-found InteractionRingController");
+            }
+            else
+            {
+                Debug.LogError($"[{gameObject.name}] InteractionRingController NOT FOUND!");
+            }
         }
         
         // Hide legacy prompts if they exist
@@ -61,11 +69,42 @@ public class NPCInteraction : MonoBehaviour
         // Set initial lock state: first NPC is never locked, optional NPCs start locked
         isCurrentlyLocked = !isFirstNPC;
         
+        Debug.Log($"[{gameObject.name}] START - isFirstNPC: {isFirstNPC}, isCurrentlyLocked: {isCurrentlyLocked}");
+        
         // Show ring immediately if this is the first NPC
-        if (isFirstNPC && interactionRing != null)
+        if (isFirstNPC)
+        {
+            Debug.Log($"[{gameObject.name}] This is the FIRST NPC - attempting to show ring...");
+            
+            if (interactionRing != null)
+            {
+                // Call ShowRing immediately
+                interactionRing.ShowRing();
+                Debug.Log($"[{gameObject.name}] ShowRing() called immediately");
+                
+                // FAILSAFE: Also call it again after a tiny delay to ensure it works
+                Invoke("ForceShowRingForFirstNPC", 0.1f);
+            }
+            else
+            {
+                Debug.LogError($"[{gameObject.name}] Cannot show ring - InteractionRingController is NULL!");
+            }
+        }
+        else
+        {
+            Debug.Log($"[{gameObject.name}] This is an OPTIONAL NPC - ring will stay hidden until unlocked");
+        }
+    }
+    
+    /// <summary>
+    /// Failsafe method to ensure first NPC ring is visible
+    /// </summary>
+    private void ForceShowRingForFirstNPC()
+    {
+        if (isFirstNPC && interactionRing != null && !hasGreeted)
         {
             interactionRing.ShowRing();
-            Debug.Log($"First NPC {gameObject.name} - ring visible at start");
+            Debug.Log($"[{gameObject.name}] FAILSAFE: Ring forced visible for first NPC");
         }
     }
 
@@ -74,8 +113,12 @@ public class NPCInteraction : MonoBehaviour
         if (playerTransform == null || conversationActive || hasGreeted)
             return;
         
-        // Update ring visibility based on lock state
-        UpdateRingVisibility();
+        // SIMPLIFIED: Just update ring visibility every frame for optional NPCs
+        // First NPC ring is shown in Start() and stays visible
+        if (!isFirstNPC)
+        {
+            UpdateRingVisibility();
+        }
         
         // Check distance for interaction
         float distance = Vector3.Distance(transform.position, playerTransform.position);
@@ -103,27 +146,19 @@ public class NPCInteraction : MonoBehaviour
 
     /// <summary>
     /// Update ring visibility based on whether NPC is locked or unlocked
+    /// ONLY CALLED FOR OPTIONAL NPCs
     /// </summary>
     private void UpdateRingVisibility()
     {
-        // Check if this NPC is locked
-        bool isLocked = !isFirstNPC && gameManager != null && !gameManager.CanInteractWithOptionalNPC();
+        // Check if first NPC has been completed
+        bool canInteract = gameManager != null && gameManager.CanInteractWithOptionalNPC();
         
         // Only update if lock state changed
-        if (isLocked != isCurrentlyLocked)
+        if (canInteract != !isCurrentlyLocked)
         {
-            isCurrentlyLocked = isLocked;
+            isCurrentlyLocked = !canInteract;
             
-            if (isLocked)
-            {
-                // NPC is LOCKED - hide ring
-                if (interactionRing != null)
-                {
-                    interactionRing.HideRing();
-                }
-                Debug.Log($"NPC {gameObject.name} is now locked - ring hidden");
-            }
-            else
+            if (canInteract)
             {
                 // NPC is UNLOCKED - show ring
                 if (interactionRing != null)
@@ -131,6 +166,15 @@ public class NPCInteraction : MonoBehaviour
                     interactionRing.ShowRing();
                 }
                 Debug.Log($"NPC {gameObject.name} is now unlocked - ring visible");
+            }
+            else
+            {
+                // NPC is LOCKED - hide ring
+                if (interactionRing != null)
+                {
+                    interactionRing.HideRing();
+                }
+                Debug.Log($"NPC {gameObject.name} is now locked - ring hidden");
             }
         }
     }

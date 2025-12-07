@@ -13,7 +13,16 @@ public class HelpPaperController : MonoBehaviour
     public float moveSpeed = 2f;
     public float tiltAngle = 25f;
     
-    [Header("Hover Effect")]
+    [Header("Glow & Pulse Effect")]
+    public Material glowMaterial; // Assign your white/glowing material here
+    [Range(0f, 5f)]
+    public float pulseSpeed = 2f;
+    [Range(0f, 0.3f)]
+    public float pulseAmount = 0.15f;
+    [Range(0f, 10f)]
+    public float emissionIntensity = 2f; // How bright the glow is
+    
+    [Header("Hover Effect (Optional)")]
     public Material highlightMaterial;
     public float hoverScale = 1.1f;
     
@@ -29,6 +38,7 @@ public class HelpPaperController : MonoBehaviour
     private Collider paperCollider;
     private TextMeshPro paperText;
     private Material originalMaterial;
+    private Material instanceMaterial; // Instance of glow material for runtime changes
 
     void Start()
     {
@@ -58,6 +68,12 @@ public class HelpPaperController : MonoBehaviour
         {
             UpdatePaperPosition();
         }
+        
+        // Pulse the glow while visible and not yet displayed
+        if (isVisible && !isDisplayed)
+        {
+            PulseGlow();
+        }
     }
 
     private void UpdatePaperPosition()
@@ -76,6 +92,22 @@ public class HelpPaperController : MonoBehaviour
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * moveSpeed);
     }
 
+    private void PulseGlow()
+    {
+        // Pulse the scale
+        float pulse = 1 + Mathf.Sin(Time.time * pulseSpeed) * pulseAmount;
+        transform.localScale = originalScale * pulse;
+        
+        // Pulse the emission if material supports it
+        if (instanceMaterial != null && instanceMaterial.HasProperty("_EmissionColor"))
+        {
+            // Pulse emission intensity
+            float emissionPulse = 1 + Mathf.Sin(Time.time * pulseSpeed) * 0.5f;
+            Color emissionColor = Color.white * emissionIntensity * emissionPulse;
+            instanceMaterial.SetColor("_EmissionColor", emissionColor);
+        }
+    }
+
     public void ShowPaperInWorld()
     {
         isVisible = true;
@@ -83,6 +115,21 @@ public class HelpPaperController : MonoBehaviour
         if (paperRenderer != null)
         {
             paperRenderer.enabled = true;
+            
+            // Apply glow material
+            if (glowMaterial != null)
+            {
+                // Create an instance so we can modify it at runtime
+                instanceMaterial = new Material(glowMaterial);
+                paperRenderer.material = instanceMaterial;
+                
+                // Set initial emission
+                if (instanceMaterial.HasProperty("_EmissionColor"))
+                {
+                    instanceMaterial.EnableKeyword("_EMISSION");
+                    instanceMaterial.SetColor("_EmissionColor", Color.white * emissionIntensity);
+                }
+            }
         }
         
         if (paperCollider != null)
@@ -96,7 +143,7 @@ public class HelpPaperController : MonoBehaviour
             paperText.enabled = true;
         }
         
-        Debug.Log("Help paper is now visible in the world");
+        Debug.Log("Help paper is now visible in the world with glow effect");
     }
 
     private void HidePaper()
@@ -128,14 +175,11 @@ public class HelpPaperController : MonoBehaviour
         
         isHovering = true;
         
-        // Change material to highlight
+        // Optional: Change to even brighter highlight material on hover
         if (paperRenderer != null && highlightMaterial != null)
         {
             paperRenderer.material = highlightMaterial;
         }
-        
-        // Scale up slightly
-        transform.localScale = originalScale * hoverScale;
         
         Debug.Log("Hovering over paper");
     }
@@ -148,14 +192,11 @@ public class HelpPaperController : MonoBehaviour
         
         isHovering = false;
         
-        // Restore original material
-        if (paperRenderer != null && originalMaterial != null)
+        // Restore glow material (not original)
+        if (paperRenderer != null && instanceMaterial != null)
         {
-            paperRenderer.material = originalMaterial;
+            paperRenderer.material = instanceMaterial;
         }
-        
-        // Restore original scale
-        transform.localScale = originalScale;
         
         Debug.Log("Stopped hovering over paper");
     }
@@ -198,6 +239,13 @@ public class HelpPaperController : MonoBehaviour
     private void ShowPaper()
     {
         isDisplayed = true;
+        
+        // Stop glowing when displayed (restore to original material)
+        if (paperRenderer != null && originalMaterial != null)
+        {
+            paperRenderer.material = originalMaterial;
+        }
+        
         StartCoroutine(AnimatePaperToCamera());
     }
 
@@ -233,5 +281,14 @@ public class HelpPaperController : MonoBehaviour
         }
         
         Debug.Log("Paper animation complete");
+    }
+    
+    private void OnDestroy()
+    {
+        // Clean up instanced material
+        if (instanceMaterial != null)
+        {
+            Destroy(instanceMaterial);
+        }
     }
 }
