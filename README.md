@@ -20,9 +20,17 @@ This repository contains the full Unity project, narrative scripts, and implemen
 
 [Watch on YouTube](https://youtu.be/KvppszXMVfc)
 
-### 📘 **Demo Presentation Slides**
+### **Demo Presentation Slides**
 
-[View Presentation](https://docs.google.com/presentation/d/1XcXwcH48-MGRW0NkAljYYibK1S0jH6Q0O4Gb1UXwhXo/edit?usp=sharing)
+[View Presentation on Google Slides](https://docs.google.com/presentation/d/1XcXwcH48-MGRW0NkAljYYibK1S0jH6Q0O4Gb1UXwhXo/edit?usp=sharing)
+
+or
+
+[/Docs/PresentationSlides.pdf](/Docs/PresentationSlides.pdf)
+
+### 📘 **Final Report**
+
+[/Docs/FinalReport.pdf](/Docs/FinalReport.pdf)
 
 --- 
 
@@ -93,7 +101,6 @@ CourtyardReflections/
 │
 ├── Docs/
 │   ├── FinalReport.pdf
-│   ├── TechnicalDocumentation.pdf
 │   └── PresentationSlides.pdf
 │
 └── README.md
