@@ -21,11 +21,11 @@ This repository contains the full Unity project, narrative scripts, and implemen
 
 ### ▶ **Project Demo Video**
 
-(Link here)
+[Watch on YouTube](https://youtu.be/KvppszXMVfc)
 
-### 📘 **Final Presentation Slides**
+### 📘 **Demo Presentation Slides**
 
-(Link here)
+[View Presentation](https://docs.google.com/presentation/d/1XcXwcH48-MGRW0NkAljYYibK1S0jH6Q0O4Gb1UXwhXo/edit?usp=sharing)
 
 --- 
 
@@ -35,13 +35,11 @@ This repository contains the full Unity project, narrative scripts, and implemen
 
 * Multi-act storyline following the Kishotenketsu structure
 * Branching expressive choices that influence tone, not structural outcomes
-* Internal monologue system reflecting cognitive load
 
 ### **Stress and Overload Simulation**
 
 * Dynamic vignette, chromatic aberration, grain, and heartbeat intensity
-* Notification overflow system for cognitive overload representation
-* Environmental progression from calm daylight to stormlike ambience
+* Internal monologue system reflecting cognitive load
 
 ### **NPC Interaction**
 
@@ -88,24 +86,17 @@ The environment softens and a supportive voiceover reframes the experience as co
 CourtyardReflections/
 │
 ├── Assets/
-│   ├── Scripts/
-│   │   ├── DialogueSystem/
-│   │   ├── StressSystem/
-│   │   ├── TaskManager/
-│   │   ├── NPCInteraction/
-│   │   └── UI/
-│   │
-│   ├── Scenes/
-│   ├── Prefabs/
-│   ├── Materials/
-│   ├── Audio/
-│   ├── Animations/
-│   └── Art/
+│   ├── Audio/              # Background music, dialogue clips, sound effects
+│   ├── Prefabs/            # Some game object prefabs (interaction rings, paper, materials)
+│   ├── Scenes/             # Main VR scene and testing environments
+│   ├── Scripts/            # Core game logic, dialogue system, stress mechanics, task management
+│   ├── UI/                 # Phone interface, notification system, dialogue interface
+│   ├── Vamporium Language/ # Help paper texture
+│   └── ZS_Assets/          # NPC models and custom scripts for anxiety manager by Zhehao Sun
 │
 ├── Docs/
-│   ├── NarrativeDesign.pdf
+│   ├── FinalReport.pdf
 │   ├── TechnicalDocumentation.pdf
-│   ├── Storyboards/
 │   └── PresentationSlides.pdf
 │
 └── README.md
@@ -137,7 +128,7 @@ CourtyardReflections/
 4. Load the scene:
 
    ```
-   Scenes/CourtyardExperience.unity
+   Scenes/updated_scene_a.unity
    ```
 5. Press Play or build to headset
 
