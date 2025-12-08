@@ -1,6 +1,3 @@
-# Final_project_cosc519
-Final Project for COSC 519 (J)
-
 # **Courtyard Reflections: A VR Experience on Academic Stress and Support**
 
 *A COSC 519 / IMTC 505 Final Project*
