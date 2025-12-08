@@ -75,3 +75,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 .cursor/plans/-8b45fbd0.plan.md
 .vscode/settings.json
+
+# macOS
+.DS_Store
