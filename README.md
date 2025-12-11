@@ -1,2 +1,3 @@
 # Final_project_cosc519
-Final Project for COSC 519 (J)
+Zhehao Sun‘s Branch
+Visual assets and AR part 
