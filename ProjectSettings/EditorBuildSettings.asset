@@ -6,10 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-<<<<<<< Updated upstream
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-=======
     path: Assets/Scenes/MobileAR_Level.unity
     guid: d17fd53f5f23a164f99fa63de35a9229
   - enabled: 0
@@ -24,9 +20,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Samples/XR Interaction Toolkit/3.2.2/Starter Assets/DemoScene.unity
     guid: 319dafa5c80f29f428dc1e0d03f04177
->>>>>>> Stashed changes
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: aa84486df7818f74fa85c1ea9a201637, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 5460d596568e54cc188b05ea99b2e209, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: fcac93f9a484144c6818c96b7f320cf7, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: c4fe82425a90b4f0c9a5e33454f850aa, type: 2}
   m_UseUCBPForAssetBundles: 0
