@@ -49,6 +49,10 @@ public class AnxietyEffectController : MonoBehaviour
             globalVolume.profile.TryGet(out grain);
             globalVolume.profile.TryGet(out distortion);
         }
+        else
+        {
+            Debug.LogWarning("AnxietyEffectController: Global Volume or its profile is not assigned. Post-processing effects will be disabled.");
+        }
 
         if (cameraShakeTransform != null)
         {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+  <application android:theme="@style/UnityThemeSelector.Translucent">
+    <!-- UnityPlayerGameActivity requires AppCompat theme -->
+    <activity android:name="com.unity3d.player.UnityPlayerGameActivity" 
+              android:theme="@style/BaseUnityGameActivityTheme"
+              android:exported="true"
+              android:configChanges="fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen|density">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+    </activity>
+    
+    <meta-data android:name="unityplayer.SkipPermissionsDialog" android:value="false" />
+  </application>
+  
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-feature android:name="android.hardware.camera" />
+  <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
+</manifest>
